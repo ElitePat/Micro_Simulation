@@ -52,6 +52,7 @@ add_custom_target(my_clean
     COMMAND ${CMAKE_COMMAND} -E remove_directory ${CMAKE_BINARY_DIR}
     COMMENT "Cleaning all contents in the build directory (${CMAKE_BINARY_DIR})"
 )
+# usage (go to the build directory): cmake --build . --target my_clean && cd ../ 
 
 
 # --- Ajout des test automatiques: commande ctest ---

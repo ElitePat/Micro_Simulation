@@ -35,3 +35,8 @@ Executer le projet
 ```bash
 ./Main.exe
 ```
+Pour nettoyer le dossier build (correctement) faire:
+```bash
+cd build
+cmake --build . --target my_clean && cd ../
+```
