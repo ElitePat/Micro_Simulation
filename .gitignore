@@ -1,0 +1,3 @@
+# .gitignore for project MICRO_SIMULATION
+# Add files/directories that must be untracked
+build/*
