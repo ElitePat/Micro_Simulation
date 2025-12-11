@@ -9,8 +9,8 @@ Code écrit en C++, pour un processeur Intel, dans WSL.
 
 ## Structure du projet
 
-- Le dossier [data](\data) contient les differents jeux de données.
-- Le dossier [src](\src) contient les fichiers source du programme.
+- Le dossier [data](data/) contient les differents jeux de données.
+- Le dossier [src](src/) contient les fichiers source du programme.
 
 ## Procédure de compilation et d'exection
 
