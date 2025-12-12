@@ -1,4 +1,22 @@
 #include "../headers/Particule.h"
 
 
-Particule::Particule(double xc, double yc, double zc) : x(xc) y(yc) z(zc){}
+// Constructeur
+Particule::Particule(double xc, double yc, double zc) : x(xc), y(yc), z(zc){}
+
+// Printeur pour debug
+void Particule::afficheParticule(){}
+
+// Getters
+double Particule::coorx(){return x;}
+double Particule::coory(){return y;}
+double Particule::coorz(){return z;}
+
+// Setter
+void Particule::update_coor(double xx, double yy, double zz){
+    x = xx;
+    y = yy;
+    z = zz;
+}
+
+// lecture de N particules dans un fichier (contenant N particules ou plus ...)

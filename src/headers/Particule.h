@@ -24,11 +24,18 @@ public:
     // Printeur pour debug
     void afficheParticule();
 
+    // Getters
+    double coorx();
+    double coory();
+    double coorz();
+
+    // Setter
+    void update_coor(double xx, double yy, double zz);
+
     // lecture de N particules dans un fichier (contenant N particules ou plus ...)
 
-}
 
-
+};
 
 
 #endif // PARTICLE_H
