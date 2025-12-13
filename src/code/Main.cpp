@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <cmath>
 
 #include "../headers/Particule.h"
 
@@ -75,6 +76,31 @@ void lireP(const std::string filepath, std::vector<Particule>& listP){
 }
 
 
+// carré de distances entre 2 partcules (r_ij)
+double carre_dist(Particule const& p1, Particule const& p2){
+    return std::abs(std::pow(p2.coorx()-p1.coorx(),2) + std::pow(p2.coory()-p1.coory(),2) + std::pow(p2.coorz()-p1.coorz(),2));
+}
+
+// calcul des forces agissant sur chacune des particules pour potentiel de Lennard Jones
+void energieLJ(std::vector<Particule> const& lp, std::vector<std::vector<double>>& lf){
+    double fx,fy,fz,r_ij,for_all;
+    for(int i=0; i < N_particules_total; i++){
+        fx=0, fy=0, fz=0;
+        for(int j=i+1; j < N_particules_total; j++){
+            r_ij = carre_dist(lp.at(i),lp.at(j));
+            // on sait que 3.0^2 = 9.0
+            for_all = -48 * 0.2 * (std::pow(9.0/r_ij,6) - std::pow(9.0/r_ij,3));
+            fx += for_all * ((lp.at(i).coorx()-lp.at(j).coorx()) / r_ij);
+            fy += for_all * ((lp.at(i).coory()-lp.at(j).coory()) / r_ij);
+            fz += for_all * ((lp.at(i).coorz()-lp.at(j).coorz()) / r_ij);
+        }
+        lf.at(i).at(0) = fx;
+        lf.at(i).at(1) = fy;
+        lf.at(i).at(2) = fz;
+    }
+}
+
+
 int main(int argc, char** argv){
 
     std::cout << "Projet de Simulation Microscopique\n";
@@ -82,15 +108,30 @@ int main(int argc, char** argv){
     std::vector<Particule> list_particules;
     list_particules.reserve(N_particules_total);
 
+    std::vector<std::vector<double>> list_forces(N_particules_total, std::vector<double>(3, 0));
+    /* Debug code for initialisation of list_forces
+    for(auto ok : list_forces)
+        std::cout << ok[0] << ok[1]<< ok[2] << "\n";
+    //*/
+    //list_forces.reserve(N_particules_total);
+
     // Lecture des particules ...
     lireP(file,list_particules);
 
     // Affichage de ce qu'on a lu (debug)
-    ///*
+    /*
     for(Particule p : list_particules){
         p.afficheParticule();
     }
     //*/
+
+    // Calcul de l'energie du système
+    energieLJ(list_particules,list_forces);
+    std::cout << "Energie pour chaque point dy système\n";
+    ///* Debug code
+    for(auto ok : list_forces)
+        std::cout << ok[0] << " " << ok[1] << " "  << ok[2] << "\n";
+    ///*/
 
     std::cout << "Fin du programme" << std::endl;
     return sort_prog;

@@ -10,9 +10,9 @@ void Particule::afficheParticule(){
 }
 
 // Getters
-double Particule::coorx(){return x;}
-double Particule::coory(){return y;}
-double Particule::coorz(){return z;}
+double Particule::coorx() const{return x;}
+double Particule::coory() const{return y;}
+double Particule::coorz() const{return z;}
 
 // Setter
 void Particule::update_coor(double xx, double yy, double zz){
@@ -20,5 +20,3 @@ void Particule::update_coor(double xx, double yy, double zz){
     y = yy;
     z = zz;
 }
-
-// lecture de N particules dans un fichier (contenant N particules ou plus ...)

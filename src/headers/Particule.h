@@ -23,9 +23,9 @@ public:
     void afficheParticule();
 
     // Getters
-    double coorx();
-    double coory();
-    double coorz();
+    double coorx() const;
+    double coory() const;
+    double coorz() const;
 
     // Setter
     void update_coor(double xx, double yy, double zz);
