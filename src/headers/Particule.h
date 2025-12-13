@@ -4,8 +4,6 @@
 #include <string>
 #include <iostream>
 
-#define N_particules_total 1000
-
 
 // définition d'une particule
 class Particule{
@@ -31,9 +29,6 @@ public:
 
     // Setter
     void update_coor(double xx, double yy, double zz);
-
-    // lecture de N particules dans un fichier (contenant N particules ou plus ...)
-
 
 };
 
