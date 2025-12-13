@@ -78,7 +78,7 @@ void lireP(const std::string filepath, std::vector<Particule>& listP){
 
 // carré de distances entre 2 partcules (r_ij)
 double carre_dist(Particule const& p1, Particule const& p2){
-    return std::abs(std::pow(p2.coorx()-p1.coorx(),2) + std::pow(p2.coory()-p1.coory(),2) + std::pow(p2.coorz()-p1.coorz(),2));
+    return std::pow(p2.coorx()-p1.coorx(),2) + std::pow(p2.coory()-p1.coory(),2) + std::pow(p2.coorz()-p1.coorz(),2);
 }
 
 // calcul des forces agissant sur chacune des particules pour potentiel de Lennard Jones
@@ -89,7 +89,7 @@ void energieLJ(std::vector<Particule> const& lp, std::vector<std::vector<double>
         for(int j=i+1; j < N_particules_total; j++){
             r_ij = carre_dist(lp.at(i),lp.at(j));
             // on sait que 3.0^2 = 9.0
-            for_all = -48 * 0.2 * (std::pow(9.0/r_ij,6) - std::pow(9.0/r_ij,3));
+            for_all = -48 * 0.2 * (std::pow((9.0/r_ij),6) - std::pow((9.0/r_ij),3));
             fx += for_all * ((lp.at(i).coorx()-lp.at(j).coorx()) / r_ij);
             fy += for_all * ((lp.at(i).coory()-lp.at(j).coory()) / r_ij);
             fz += for_all * ((lp.at(i).coorz()-lp.at(j).coorz()) / r_ij);
@@ -127,11 +127,22 @@ int main(int argc, char** argv){
 
     // Calcul de l'energie du système
     energieLJ(list_particules,list_forces);
-    std::cout << "Energie pour chaque point dy système\n";
+    //std::cout << "Energie pour chaque point dy système\n";
     ///* Debug code
     for(auto ok : list_forces)
         std::cout << ok[0] << " " << ok[1] << " "  << ok[2] << "\n";
     ///*/
+
+    // On vérifie que la somme des forces agissant sur toutes les particules est nulle
+    double sumfx=0, sumfy=0, sumfz=0;
+    for(auto force : list_forces){
+        sumfx += force.at(0);
+        sumfy += force.at(1);
+        sumfz += force.at(2);
+    }
+
+    std::cout << "Somme des forces pour x, y, z: " << sumfx << ", " << sumfy << ", "  << sumfz << "\n";
+    std::cout << "Soit en somme -> " << (sumfx+sumfy) << "\n";
 
     std::cout << "Fin du programme" << std::endl;
     return sort_prog;

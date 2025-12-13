@@ -37,7 +37,7 @@ set(MAIN_SRC
 include_directories(${HEADERS_DIR}) # Ton répertoire d'en-têtes (où sont les headers)
 
 # Options de compilation standard
-add_compile_options(-std=c++20 -Wall -Wextra -pedantic -lm) # Options de warning strictes + options maths
+add_compile_options(-std=c++20 -Wall -Wextra -pedantic -lm -O0) # Options de warning strictes + options maths
 
 
 # --- Création des exécutables ---
