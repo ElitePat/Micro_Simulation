@@ -88,8 +88,10 @@ void energieLJ(std::vector<Particule> const& lp, std::vector<std::vector<double>
         fx=0, fy=0, fz=0;
         for(int j=i+1; j < N_particules_total; j++){
             r_ij = carre_dist(lp.at(i),lp.at(j));
+            
             // on sait que 3.0^2 = 9.0
             for_all = -48 * 0.2 * (std::pow((9.0/r_ij),6) - std::pow((9.0/r_ij),3));
+
             fx += for_all * ((lp.at(i).coorx()-lp.at(j).coorx()) / r_ij);
             fy += for_all * ((lp.at(i).coory()-lp.at(j).coory()) / r_ij);
             fz += for_all * ((lp.at(i).coorz()-lp.at(j).coorz()) / r_ij);
