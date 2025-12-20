@@ -90,7 +90,8 @@ void energieLJ(std::vector<Particule> const& lp, std::vector<std::vector<double>
             r_ij = carre_dist(lp.at(i),lp.at(j));
             
             // on sait que 3.0^2 = 9.0
-            for_all = -48 * 0.2 * (std::pow((9.0/r_ij),6) - std::pow((9.0/r_ij),3));
+            //for_all = -48 * 0.2 * (std::pow((9.0/r_ij),6) - std::pow((9.0/r_ij),3));
+            for_all = -48 * 0.2 * ((std::pow(3.0,12)/std::pow(r_ij,6)) - (std::pow(3.0,6)/std::pow(r_ij,3)));
 
             fx += for_all * ((lp.at(i).coorx()-lp.at(j).coorx()) / r_ij);
             fy += for_all * ((lp.at(i).coory()-lp.at(j).coory()) / r_ij);
@@ -130,7 +131,7 @@ int main(int argc, char** argv){
     // Calcul de l'energie du système
     energieLJ(list_particules,list_forces);
     //std::cout << "Energie pour chaque point dy système\n";
-    ///* Debug code
+    /* Debug code
     for(auto ok : list_forces)
         std::cout << ok[0] << " " << ok[1] << " "  << ok[2] << "\n";
     ///*/
@@ -149,3 +150,5 @@ int main(int argc, char** argv){
     std::cout << "Fin du programme" << std::endl;
     return sort_prog;
 }
+
+/* Reprendre les calculs à la main */
