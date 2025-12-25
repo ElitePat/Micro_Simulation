@@ -86,8 +86,11 @@ void energieLJ(std::vector<Particule> const& lp, std::vector<std::vector<double>
     double fx,fy,fz,r_ij,for_all;
     for(int i=0; i < N_particules_total; i++){
         fx=0, fy=0, fz=0;
-        for(int j=i+1; j < N_particules_total; j++){
+        for(int j=0; j < N_particules_total; j++){
+            if(i == j)
+                continue;
             r_ij = carre_dist(lp.at(i),lp.at(j));
+            //std::cout << "valeur distance etre " << i << " et " << j << " = " << r_ij << "\n";
             
             // on sait que 3.0^2 = 9.0
             //for_all = -48 * 0.2 * (std::pow((9.0/r_ij),6) - std::pow((9.0/r_ij),3));
@@ -96,6 +99,7 @@ void energieLJ(std::vector<Particule> const& lp, std::vector<std::vector<double>
             fx += for_all * ((lp.at(i).coorx()-lp.at(j).coorx()) / r_ij);
             fy += for_all * ((lp.at(i).coory()-lp.at(j).coory()) / r_ij);
             fz += for_all * ((lp.at(i).coorz()-lp.at(j).coorz()) / r_ij);
+            //std::cout << "valeur force fx " << fx << "\n"; // debug line
         }
         lf.at(i).at(0) = fx;
         lf.at(i).at(1) = fy;
@@ -120,6 +124,8 @@ int main(int argc, char** argv){
 
     // Lecture des particules ...
     lireP(file,list_particules);
+    //list_particules.at(0).afficheParticule(); // debug line
+    //list_particules.at(1).afficheParticule(); // debug line
 
     // Affichage de ce qu'on a lu (debug)
     /*
@@ -132,8 +138,10 @@ int main(int argc, char** argv){
     energieLJ(list_particules,list_forces);
     //std::cout << "Energie pour chaque point dy système\n";
     /* Debug code
+    std::cout << "Forces: fx fy fz\n";
     for(auto ok : list_forces)
         std::cout << ok[0] << " " << ok[1] << " "  << ok[2] << "\n";
+    std::cout << "==================\n";
     ///*/
 
     // On vérifie que la somme des forces agissant sur toutes les particules est nulle
@@ -145,7 +153,7 @@ int main(int argc, char** argv){
     }
 
     std::cout << "Somme des forces pour x, y, z: " << sumfx << ", " << sumfy << ", "  << sumfz << "\n";
-    std::cout << "Soit en somme -> " << (sumfx+sumfy) << "\n";
+    //std::cout << "Soit en somme -> " << (sumfx+sumfy) << "\n"; // debug line
 
     std::cout << "Fin du programme" << std::endl;
     return sort_prog;
