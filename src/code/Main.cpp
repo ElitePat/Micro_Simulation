@@ -79,37 +79,36 @@ void lireP(const std::string filepath, std::vector<Particule>& listP){
 
 // initialisation des vecteurs de translation
 void trans_vect_init(std::vector<std::vector<double>>& tv){
-    int n = 0;
-    double c = -1*L;
+    int n1=0, n0=0;
+    double deb=-1*L; // debut des itérations
+    double c1=deb, c2=deb, c0=deb;
     for(auto& v: tv){
-        if(n > N_sym/3-1){
-            c += L;
-            n = 0;
+        // v[0]
+        if(n0 > N_sym/3-1){
+            c0 += L;
+            n0 = 0;
         }
-        v[0] = c;
-        ++n;
-    }
-    n = 0;
-    c = -1*L;
-    for(auto& v: tv){
-        if(n > 2){
-            c += L;
-            if(c > L){
-                c = -1*L;
+        v[0] = c0;
+        ++n0;
+
+        // v[1]
+        if(n1 > 2){
+            c1 += L;
+            if(c1 > L){
+                c1 = -1*L;
             }
-            n = 0;
+            n1 = 0;
         }
-        v[1] = c;
-        ++n;
-    }
-    n = 0;
-    c = -1*L;
-    for(auto& v: tv){
-        v[2] = c;
-        c += L;
-        if(c > L){
-            c = -1*L;
-        } 
+        v[1] = c1;
+        ++n1;
+
+        // v[2]
+        v[2] = c2;
+        c2 += L;
+        if(c2 > L){
+            c2 = -1*L;
+        }
+
     }
 }
 
