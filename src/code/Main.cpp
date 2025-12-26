@@ -10,6 +10,8 @@
 
 
 #define N_particules_total 1000
+#define N_sym 27 // vecteurs de translation possibles
+#define L 42.0 // c'est un double !
 
 
 const std::string file = "../data/particule";
@@ -75,6 +77,41 @@ void lireP(const std::string filepath, std::vector<Particule>& listP){
     fs.close();
 }
 
+// initialisation des vecteurs de translation
+void trans_vect_init(std::vector<std::vector<double>>& tv){
+    int n = 0;
+    double c = -1*L;
+    for(auto& v: tv){
+        if(n > N_sym/3-1){
+            c += L;
+            n = 0;
+        }
+        v[0] = c;
+        ++n;
+    }
+    n = 0;
+    c = -1*L;
+    for(auto& v: tv){
+        if(n > 2){
+            c += L;
+            if(c > L){
+                c = -1*L;
+            }
+            n = 0;
+        }
+        v[1] = c;
+        ++n;
+    }
+    n = 0;
+    c = -1*L;
+    for(auto& v: tv){
+        v[2] = c;
+        c += L;
+        if(c > L){
+            c = -1*L;
+        } 
+    }
+}
 
 // carré de distances entre 2 partcules (r_ij)
 double carre_dist(Particule const& p1, Particule const& p2){
@@ -112,9 +149,13 @@ int main(int argc, char** argv){
 
     std::cout << "Projet de Simulation Microscopique\n";
 
+    //std::cout << sizeof(L) << " <= taille de L\n"; // debug line
+
+    // liste des particules du système
     std::vector<Particule> list_particules;
     list_particules.reserve(N_particules_total);
 
+    // forces pour chaque particule
     std::vector<std::vector<double>> list_forces(N_particules_total, std::vector<double>(3, 0));
     /* Debug code for initialisation of list_forces
     for(auto ok : list_forces)
@@ -122,23 +163,31 @@ int main(int argc, char** argv){
     //*/
     //list_forces.reserve(N_particules_total);
 
+    // vecteurs de translation
+    std::vector<std::vector<double>> trans_vect(N_sym, std::vector<double>(3, 0));
+
     // Lecture des particules ...
     lireP(file,list_particules);
-    //list_particules.at(0).afficheParticule(); // debug line
-    //list_particules.at(1).afficheParticule(); // debug line
-
+    /* Debug code
     // Affichage de ce qu'on a lu (debug)
-    /*
     for(Particule p : list_particules){
         p.afficheParticule();
     }
     //*/
 
+    // initialisation des vecteurs de translation
+    trans_vect_init(trans_vect);
+    ///*Debug code
+    std::cout << "Vecteurs de translation \n";
+    for(auto v : trans_vect){
+        std::cout << v[0] << " " << v[1] << " " << v[2] << "\n";
+    }
+    //*/
+
     // Calcul de l'energie du système
     energieLJ(list_particules,list_forces);
-    //std::cout << "Energie pour chaque point dy système\n";
     /* Debug code
-    std::cout << "Forces: fx fy fz\n";
+    std::cout << "Energie pour chaque point du système\nForces: fx fy fz\n";
     for(auto ok : list_forces)
         std::cout << ok[0] << " " << ok[1] << " "  << ok[2] << "\n";
     std::cout << "==================\n";
@@ -158,5 +207,3 @@ int main(int argc, char** argv){
     std::cout << "Fin du programme" << std::endl;
     return sort_prog;
 }
-
-/* Reprendre les calculs à la main */
