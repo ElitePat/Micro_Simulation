@@ -120,6 +120,9 @@ double carre_dist(Particule const& p1, Particule const& p2){
 // calcul des forces agissant sur chacune des particules pour potentiel de Lennard Jones
 void energieLJ(std::vector<Particule> const& lp, std::vector<std::vector<double>>& lf){
     double fx,fy,fz,r_ij,for_all;
+    //for(std::vector<double> i_sym : )
+
+
     for(int i=0; i < N_particules_total; i++){
         fx=0, fy=0, fz=0;
         for(int j=0; j < N_particules_total; j++){
@@ -176,7 +179,7 @@ int main(int argc, char** argv){
 
     // initialisation des vecteurs de translation
     trans_vect_init(trans_vect);
-    ///*Debug code
+    /*Debug code
     std::cout << "Vecteurs de translation \n";
     for(auto v : trans_vect){
         std::cout << v[0] << " " << v[1] << " " << v[2] << "\n";
