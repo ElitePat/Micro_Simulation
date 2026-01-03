@@ -14,7 +14,8 @@ private:
     double z;
 
 public:
-    // Constructeur
+    // Constructeurs
+    Particule() = default;
     Particule(double xc, double yc, double zc);
     // Destructeur
     ~Particule() = default;

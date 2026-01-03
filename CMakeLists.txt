@@ -26,6 +26,7 @@ set(HEADERS_DIR ${CMAKE_SOURCE_DIR}/src/headers)
 # Doit inclure TOUS les .cpp dont le code à besoin pour compiler et les lier.
 set(MAIN_SRC
     ${CODE_DIR}/Main.cpp
+    ${CODE_DIR}/Simulation.cpp
     ${CODE_DIR}/Particule.cpp
     # Ajouter les fichiers sources ici au fur et à mésure de leur création.
 )
