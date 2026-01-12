@@ -123,30 +123,44 @@ double Simulation::carre_dist(Particule const& p1, Particule const& p2){
 // calcul des forces agissant sur chacune des particules pour potentiel de Lennard Jones
 void Simulation::energieLJ(){
     double fx,fy,fz,r_ij,for_all;
-
+    int i=-1, j=0;
+    //int n = 0; // debug line
     //for(std::vector<double> i_sym : )
 
-    for(int i=0; i < N_particules_total; i++){
-        fx=0, fy=0, fz=0;
-        for(int j=0; j < N_particules_total; j++){
-            if(i == j)
-                continue;
-            r_ij = carre_dist(list_particules->at(i),list_particules->at(j));
-            //std::cout << "valeur distance etre " << i << " et " << j << " = " << r_ij << "\n";
-            
-            // on sait que 3.0^2 = 9.0
-            //for_all = -48 * 0.2 * (std::pow((9.0/r_ij),6) - std::pow((9.0/r_ij),3));
-            for_all = -48 * 0.2 * ((std::pow(3.0,12)/std::pow(r_ij,6)) - (std::pow(3.0,6)/std::pow(r_ij,3)));
+    for(Particule p1 : *list_particules){
+        ++i;
+        //std::cout << "\n======================: i = " << i << "\n"; // debug line
 
-            fx += for_all * ((list_particules->at(i).coorx()-list_particules->at(j).coorx()) / r_ij);
-            fy += for_all * ((list_particules->at(i).coory()-list_particules->at(j).coory()) / r_ij);
-            fz += for_all * ((list_particules->at(i).coorz()-list_particules->at(j).coorz()) / r_ij);
-            //std::cout << "valeur force fx " << fx << "\n"; // debug line
+        fx=0, fy=0, fz=0, j=0;
+        //std::cout << "j = "; // debug line
+
+        for(Particule p2: *list_particules){
+            if(i == j){
+                //++n; // debug line
+                ++j;
+            }else{
+                r_ij = carre_dist(p1,p2);
+                //std::cout << "valeur distance etre " << i << " et " << j << " = " << r_ij << "\n";
+                
+                // on sait que 3.0^2 = 9.0
+                //for_all = -48 * 0.2 * (std::pow((9.0/r_ij),6) - std::pow((9.0/r_ij),3));
+                for_all = -48 * 0.2 * ((std::pow(3.0,12)/std::pow(r_ij,6)) - (std::pow(3.0,6)/std::pow(r_ij,3)));
+                fx += for_all * ((p1.coorx()-p2.coorx()) / r_ij);
+                fy += for_all * ((p1.coory()-p2.coory()) / r_ij);
+                fz += for_all * ((p1.coorz()-p2.coorz()) / r_ij);
+                //std::cout << "valeur force fx " << fx << "\n"; // debug line
+                
+                //std::cout << " " << j << " "; // debug line
+                ++j;
+            }
         }
+
         list_forces->at(i).at(0) = fx;
         list_forces->at(i).at(1) = fy;
         list_forces->at(i).at(2) = fz;
+
     }
+    //std::cout << "\ni==j " << n << " fois\n"; // debug line
 }
 
 
@@ -173,20 +187,16 @@ int Simulation::run(std::string const& filepath){
 
     // Calcul de l'energie du système
     energieLJ();
-    /* Debug code
-    std::cout << "Energie pour chaque point du système\nForces: fx fy fz\n";
-    for(auto ok : list_forces)
-        std::cout << ok[0] << " " << ok[1] << " "  << ok[2] << "\n";
-    std::cout << "==================\n";
-    ///*/
-
     // On vérifie que la somme des forces agissant sur toutes les particules est nulle
     double sumfx=0, sumfy=0, sumfz=0;
-    for(std::vector<double> force : *list_forces){
-        sumfx += force.at(0);
-        sumfy += force.at(1);
-        sumfz += force.at(2);
+    //std::cout << "Energie pour chaque point du système\nForces: fx fy fz\n";
+    for(auto force : *list_forces){
+        //std::cout << force[0] << " " << force[1] << " "  << force[2] << "\n"; // debug line
+        sumfx += force[0];
+        sumfy += force[1];
+        sumfz += force[2];
     }
+    //std::cout << "==================\n";
     std::cout << "Somme des forces pour x, y, z: " << sumfx << ", " << sumfy << ", "  << sumfz << "\n";
     //std::cout << "Soit en somme -> " << (sumfx+sumfy) << "\n"; // debug line
 
