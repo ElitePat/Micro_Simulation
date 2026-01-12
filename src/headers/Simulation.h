@@ -24,6 +24,15 @@ private:
     // nombre local de particules
     int N_particules_local;
 
+    // valeur de l'epsilon
+    double epsilon = 0.2;
+
+    // valeur de r*:
+    double r = 3.0;
+
+    // valeur de l'energie (selon le terme de Leonard-Jones)
+    double ulj = 0;
+
     // Liste des particules dans la simulation
     std::vector<Particule> *list_particules;
 

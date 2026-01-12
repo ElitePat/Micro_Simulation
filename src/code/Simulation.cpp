@@ -122,45 +122,54 @@ double Simulation::carre_dist(Particule const& p1, Particule const& p2){
 
 // calcul des forces agissant sur chacune des particules pour potentiel de Lennard Jones
 void Simulation::energieLJ(){
-    double fx,fy,fz,r_ij,for_all;
+    double fx, fy, fz, r_ij, for_all, temp1, temp2, tulj;
     int i=-1, j=0;
     //int n = 0; // debug line
-    //for(std::vector<double> i_sym : )
+    for(std::vector<double> i_sym : *trans_vect){
 
-    for(Particule p1 : *list_particules){
-        ++i;
-        //std::cout << "\n======================: i = " << i << "\n"; // debug line
+        for(Particule p1 : *list_particules){
+            ++i;
+            //std::cout << "\n======================: i = " << i << "\n"; // debug line
 
-        fx=0, fy=0, fz=0, j=0;
-        //std::cout << "j = "; // debug line
+            fx=0, fy=0, fz=0, j=0;
+            //std::cout << "j = "; // debug line
 
-        for(Particule p2: *list_particules){
-            if(i == j){
-                //++n; // debug line
-                ++j;
-            }else{
-                r_ij = carre_dist(p1,p2);
-                //std::cout << "valeur distance etre " << i << " et " << j << " = " << r_ij << "\n";
-                
-                // on sait que 3.0^2 = 9.0
-                //for_all = -48 * 0.2 * (std::pow((9.0/r_ij),6) - std::pow((9.0/r_ij),3));
-                for_all = -48 * 0.2 * ((std::pow(3.0,12)/std::pow(r_ij,6)) - (std::pow(3.0,6)/std::pow(r_ij,3)));
-                fx += for_all * ((p1.coorx()-p2.coorx()) / r_ij);
-                fy += for_all * ((p1.coory()-p2.coory()) / r_ij);
-                fz += for_all * ((p1.coorz()-p2.coorz()) / r_ij);
-                //std::cout << "valeur force fx " << fx << "\n"; // debug line
-                
+            for(Particule p2: *list_particules){
+                if(i != j){
+                    r_ij = carre_dist(p1,p2);
+                    //std::cout << "valeur distance etre " << i << " et " << j << " = " << r_ij << "\n";
+
+                    temp1 = std::pow(r,12) / std::pow(r_ij,6);
+                    temp2 = std::pow(r,6) / std::pow(r_ij,3);
+                    
+                    // on sait que 3.0^2 = 9.0
+                    //for_all = -48 * 0.2 * (std::pow((9.0/r_ij),6) - std::pow((9.0/r_ij),3));
+                    for_all = -48 * epsilon * temp1 - temp2;
+
+                    tulj += temp1 - (2 * temp2);
+
+                    fx += for_all * ((p1.coorx()-p2.coorx()) / r_ij);
+                    fy += for_all * ((p1.coory()-p2.coory()) / r_ij);
+                    fz += for_all * ((p1.coorz()-p2.coorz()) / r_ij);
+                    //std::cout << "valeur force fx " << fx << "\n"; // debug line
+                }
                 //std::cout << " " << j << " "; // debug line
                 ++j;
             }
+
+            list_forces->at(i).at(0) = fx;
+            list_forces->at(i).at(1) = fy;
+            list_forces->at(i).at(2) = fz;
+
         }
-
-        list_forces->at(i).at(0) = fx;
-        list_forces->at(i).at(1) = fy;
-        list_forces->at(i).at(2) = fz;
-
+        
+        tulj *= 4 * epsilon;
+        ulj += tulj;
+        tulj = 0;
+        i = -1;
+        //std::cout << "\ni==j " << n << " fois\n"; // debug line
+        //break; // N_sym fixé à 1 !
     }
-    //std::cout << "\ni==j " << n << " fois\n"; // debug line
 }
 
 
@@ -198,6 +207,7 @@ int Simulation::run(std::string const& filepath){
     }
     //std::cout << "==================\n";
     std::cout << "Somme des forces pour x, y, z: " << sumfx << ", " << sumfy << ", "  << sumfz << "\n";
+    std::cout << "ULJ = " << ulj << "\n";
     //std::cout << "Soit en somme -> " << (sumfx+sumfy) << "\n"; // debug line
 
     std::cout << "Fin de la Simulation\n";
