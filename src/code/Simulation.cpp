@@ -25,16 +25,14 @@ void Simulation::trans_vect_init(){
     int n1=0, n0=0;
     double deb=-1*L; // debut des itérations
     double c1=deb, c2=deb, c0=deb;
-    for(auto v: *trans_vect){
-        // v[0]
+    for(int i=0; i<N_sym; ++i){
         if(n0 > N_sym/3-1){
             c0 += L;
             n0 = 0;
         }
-        v[0] = c0;
+        trans_vect->at(i).at(0) = c0;
         ++n0;
 
-        // v[1]
         if(n1 > 2){
             c1 += L;
             if(c1 > L){
@@ -42,11 +40,10 @@ void Simulation::trans_vect_init(){
             }
             n1 = 0;
         }
-        v[1] = c1;
+        trans_vect->at(i).at(1) = c1;
         ++n1;
 
-        // v[2]
-        v[2] = c2;
+        trans_vect->at(i).at(2) = c2;
         c2 += L;
         if(c2 > L){
             c2 = -1*L;
@@ -166,20 +163,12 @@ void Simulation::energieLJ(){
                     fz += for_all * ((p1.coorz()-p2.coorz()) / r_ij);
                     //std::cout << "valeur force fx " << fx << "\n"; // debug line
                     //std::cout << " " << j << " "; // debug line
-                }
-                if(j > i){
-                    r_ij = carre_dist(p1,p2);
+                
+                    if(j > i){
 
-                    // Calcul de r_ij^3 et de r_ij^6
-                    r_ij3 = r_ij * r_ij;
-                    r_ij3 *= r_ij;
-                    r_ij6 = r_ij3 * r_ij3;
-
-                    temp1 = r12 / r_ij6;
-                    temp2 = r6 / r_ij3;
-
-                    tulj += temp1 - (2 * temp2);
-                    tulj *= epsilon;
+                        tulj += temp1 - (2 * temp2);
+                        tulj *= epsilon;
+                    }
                 }
                 ++j;
             }
@@ -225,6 +214,11 @@ int Simulation::run(std::string const& filepath){
 
     // initialisation des vecteurs de translation
     trans_vect_init();
+    /* Debug code 
+    for(auto t : *trans_vect){
+        std::cout << t[0] << " " << t[1] << " "  << t[2] << "\n"; // debug line
+    }
+    //*/
 
     // Lecture des particules
     int test = lireP(filepath);
