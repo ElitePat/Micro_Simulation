@@ -1,0 +1,9 @@
+Projet de Simulation Microscopique
+==========Début d'execution de la Simulation==========
+
+Somme des forces pour x, y, z: 13.4707, 0.472755, -0.568057
+ULJ = -0.00531838
+
+==========Fin de l'execution de la Simulation==========
+Mémoire de la Simulation liberé !
+Fin du programme

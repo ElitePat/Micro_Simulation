@@ -19,15 +19,16 @@ On crée un dossier `build` et on se place dedans:
 mkdir build
 cd build
 ```
-Construire le projet:
+Construire le projet (en mode debug ou release):
 ```bash
-cmake ..
+cmake -DCMAKE_BUILD_TYPE=Debug .
+cmake -DCMAKE_BUILD_TYPE=Release .
 ```
 Compiler le projet:
 ```bash
 cmake --build .
 ```
-(Si on veut voir la longueur de l'execution du programme et se rassurer que tout se passe bien)
+(Si on veut voir le temps d'execution du programme et se rassurer que tout se passe bien)
 ```bash
 ctest
 ```
