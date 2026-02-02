@@ -117,17 +117,27 @@ int Simulation::lireP(const std::string filepath){
 
 // carré de distances entre 2 partcules (r_ij)
 double Simulation::carre_dist(Particule const& p1, Particule const& p2){
-    return std::pow(p2.coorx()-p1.coorx(),2) + std::pow(p2.coory()-p1.coory(),2) + std::pow(p2.coorz()-p1.coorz(),2);
+    double xx = p2.coorx()-p1.coorx();
+    double yy = p2.coory()-p1.coory();
+    double zz = p2.coorz()-p1.coorz();
+    return xx*xx + yy*yy + zz*zz;
 }
 
 // calcul des forces agissant sur chacune des particules pour potentiel de Lennard Jones
 void Simulation::energieLJ(){
-    double fx, fy, fz, r_ij, for_all, temp1, temp2, tulj;
+    double fx, fy, fz, r_ij, for_all, temp1, temp2, tulj, r2, r6, r12, r_ij3, r_ij6;
     int i=0, j;
     //int n = 0; // debug line
+
+    // Calcul de r^6 et de r^12
+    r2 = r*r; // r^2
+    r6 = r2*r2; // r^4
+    r6 *= r2; // r^6
+    r12 = r6*r6; // r^12
+
     for(std::vector<double> i_sym : *trans_vect){
 
-        std::cout << "Vecteur <" << i_sym.at(0) << ";"  << i_sym.at(1) << ";"  << i_sym.at(2) << ">\n";
+        //std::cout << "Vecteur <" << i_sym.at(0) << ";"  << i_sym.at(1) << ";"  << i_sym.at(2) << ">\n"; // debug line
 
         for(Particule p1 : *list_particules){
             //std::cout << "\n======================: i = " << i << "\n"; // debug line
@@ -138,8 +148,13 @@ void Simulation::energieLJ(){
                     r_ij = carre_dist(p1,p2);
                     //std::cout << "valeur distance etre " << i << " et " << j << " = " << r_ij << "\n";
 
-                    temp1 = std::pow(r,12) / std::pow(r_ij,6);
-                    temp2 = std::pow(r,6) / std::pow(r_ij,3);
+                    // Calcul de r_ij^3 et de r_ij^6
+                    r_ij3 = r_ij * r_ij;
+                    r_ij3 *= r_ij;
+                    r_ij6 = r_ij3 * r_ij3;
+
+                    temp1 = r12 / r_ij6;
+                    temp2 = r6 / r_ij3;
                     
                     // on sait que 3.0^2 = 9.0
                     //for_all = -48 * 0.2 * (std::pow((9.0/r_ij),6) - std::pow((9.0/r_ij),3));
@@ -153,8 +168,15 @@ void Simulation::energieLJ(){
                     //std::cout << " " << j << " "; // debug line
                 }
                 if(j > i){
-                    temp1 = std::pow(r,12) / std::pow(r_ij,6);
-                    temp2 = std::pow(r,6) / std::pow(r_ij,3);
+                    r_ij = carre_dist(p1,p2);
+
+                    // Calcul de r_ij^3 et de r_ij^6
+                    r_ij3 = r_ij * r_ij;
+                    r_ij3 *= r_ij;
+                    r_ij6 = r_ij3 * r_ij3;
+
+                    temp1 = r12 / r_ij6;
+                    temp2 = r6 / r_ij3;
 
                     tulj += temp1 - (2 * temp2);
                     tulj *= epsilon;
@@ -185,7 +207,7 @@ void Simulation::energieLJ(){
 
     // moyenne sur les vecteurs ... BOF
     ulj /= N_sym;
-    
+
     /* Non pertinent
     for(auto f: *list_forces){
         f.at(0) /= N_sym;
