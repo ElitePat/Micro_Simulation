@@ -123,19 +123,18 @@ double Simulation::carre_dist(Particule const& p1, Particule const& p2){
 // calcul des forces agissant sur chacune des particules pour potentiel de Lennard Jones
 void Simulation::energieLJ(){
     double fx, fy, fz, r_ij, for_all, temp1, temp2, tulj;
-    int i=-1, j=0;
+    int i=0, j;
     //int n = 0; // debug line
     for(std::vector<double> i_sym : *trans_vect){
 
+        std::cout << "Vecteur <" << i_sym.at(0) << ";"  << i_sym.at(1) << ";"  << i_sym.at(2) << ">\n";
+
         for(Particule p1 : *list_particules){
-            ++i;
             //std::cout << "\n======================: i = " << i << "\n"; // debug line
 
             fx=0, fy=0, fz=0, j=0;
-            //std::cout << "j = "; // debug line
-
             for(Particule p2: *list_particules){
-                if(i != j){
+                if(j != i){
                     r_ij = carre_dist(p1,p2);
                     //std::cout << "valeur distance etre " << i << " et " << j << " = " << r_ij << "\n";
 
@@ -144,39 +143,63 @@ void Simulation::energieLJ(){
                     
                     // on sait que 3.0^2 = 9.0
                     //for_all = -48 * 0.2 * (std::pow((9.0/r_ij),6) - std::pow((9.0/r_ij),3));
-                    for_all = -48 * epsilon * temp1 - temp2;
+                    for_all = -48 * epsilon * (temp1 - temp2);
 
-                    tulj += temp1 - (2 * temp2);
 
                     fx += for_all * ((p1.coorx()-p2.coorx()) / r_ij);
                     fy += for_all * ((p1.coory()-p2.coory()) / r_ij);
                     fz += for_all * ((p1.coorz()-p2.coorz()) / r_ij);
                     //std::cout << "valeur force fx " << fx << "\n"; // debug line
+                    //std::cout << " " << j << " "; // debug line
                 }
-                //std::cout << " " << j << " "; // debug line
+                if(j > i){
+                    temp1 = std::pow(r,12) / std::pow(r_ij,6);
+                    temp2 = std::pow(r,6) / std::pow(r_ij,3);
+
+                    tulj += temp1 - (2 * temp2);
+                    tulj *= epsilon;
+                }
                 ++j;
             }
 
+            /* Pour chaque vecteur on va reécrire la valeur de list_forces. En gros, on ne garde que
+            la valeur des list_forces calculés pour le dernier vecteur */
             list_forces->at(i).at(0) = fx;
             list_forces->at(i).at(1) = fy;
             list_forces->at(i).at(2) = fz;
+            
+            // reset de j
+            //std::cout << "j = "; // debug line
+            j = 0;
+            ++i;
 
         }
         
-        tulj *= 4 * epsilon;
+        tulj *= 4;
         ulj += tulj;
+
+        // reset des variables
         tulj = 0;
-        i = -1;
-        //std::cout << "\ni==j " << n << " fois\n"; // debug line
-        //break; // N_sym fixé à 1 !
+        i = 0;
     }
+
+    // moyenne sur les vecteurs ... BOF
+    ulj /= N_sym;
+    
+    /* Non pertinent
+    for(auto f: *list_forces){
+        f.at(0) /= N_sym;
+        f.at(1) /= N_sym;
+        f.at(2) /= N_sym;
+    }*/
+
 }
 
 
 // Lance la simulation
 int Simulation::run(std::string const& filepath){
 
-    std::cout << "Début de la Simulation\n";
+    std::cout << "==========Début d'execution de la Simulation==========\n\n";
 
     // initialisation des vecteurs de translation
     trans_vect_init();
@@ -210,6 +233,6 @@ int Simulation::run(std::string const& filepath){
     std::cout << "ULJ = " << ulj << "\n";
     //std::cout << "Soit en somme -> " << (sumfx+sumfy) << "\n"; // debug line
 
-    std::cout << "Fin de la Simulation\n";
+    std::cout << "\n==========Fin de l'execution de la Simulation==========\n";
     return 0;
 }
