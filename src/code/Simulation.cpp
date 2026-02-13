@@ -13,7 +13,9 @@ Simulation::Simulation(){
 Simulation::~Simulation(){
     delete list_particules;
     delete list_forces;
+    #ifndef NDEBUG // Debug code"
     std::cout << "Mémoire de la Simulation liberé !\n";
+    #endif
 }
 
 // Affiche les information/état de la simulation au momment de l'appel
@@ -214,11 +216,12 @@ int Simulation::run(std::string const& filepath){
 
     // initialisation des vecteurs de translation
     trans_vect_init();
-    /* Debug code 
+    #ifndef NDEBUG // Debug code
+    std::cout << "Vecteur -> conditions périodiques:\n";
     for(auto t : *trans_vect){
         std::cout << t[0] << " " << t[1] << " "  << t[2] << "\n"; // debug line
     }
-    //*/
+    #endif
 
     // Lecture des particules
     int test = lireP(filepath);
@@ -226,26 +229,30 @@ int Simulation::run(std::string const& filepath){
         std::cout << "Échec de la simulation !\n";
         return 1;
     }
-    /* Debug code
-    // Affichage de ce qu'on a lu (debug)
-    for(Particule p : list_particules){
+    #ifndef NDEBUG // Debug code
+    std::cout << "\nAffichage des points lus dans le fichier: \npoints en  x,y,z\n";
+    for(Particule p : *list_particules){
         p.afficheParticule();
     }
-    //*/
+    #endif
 
     // Calcul de l'energie du système
     energieLJ();
     // On vérifie que la somme des forces agissant sur toutes les particules est nulle
     double sumfx=0, sumfy=0, sumfz=0;
-    //std::cout << "Energie pour chaque point du système\nForces: fx fy fz\n";
+    #ifndef NDEBUG // Debug line
+    std::cout << "\nEnergie pour chaque point du système, forces fx fy fz:\n";
+    #endif
     for(auto force : *list_forces){
-        //std::cout << force[0] << " " << force[1] << " "  << force[2] << "\n"; // debug line
+        #ifndef NDEBUG // for Debug 
+        std::cout << force[0] << "," << force[1] << ","  << force[2] << "\n"; // debug line
+        #endif
         sumfx += force[0];
         sumfy += force[1];
         sumfz += force[2];
     }
     //std::cout << "==================\n";
-    std::cout << "Somme des forces pour x, y, z: " << sumfx << ", " << sumfy << ", "  << sumfz << "\n";
+    std::cout << "\nSomme des forces pour x, y, z: " << sumfx << ", " << sumfy << ", "  << sumfz << "\n";
     std::cout << "ULJ = " << ulj << "\n";
     //std::cout << "Soit en somme -> " << (sumfx+sumfy) << "\n"; // debug line
 

@@ -6,7 +6,7 @@ Particule::Particule(double xc, double yc, double zc) : x(xc), y(yc), z(zc){}
 
 // Printeur pour debug
 void Particule::afficheParticule(){
-    std::cout << "x,y,z : " << x << "," << y << "," << z << "\n";
+    std::cout << x << "," << y << "," << z << "\n";
 }
 
 // Getters

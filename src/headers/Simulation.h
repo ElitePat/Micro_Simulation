@@ -14,7 +14,7 @@
 
 
 #define N_particules_total 1000
-#define N_sym 1 // vecteurs de translation possibles
+#define N_sym 27 // vecteurs de translation possibles
 #define L 42.0 // c'est un double !
 
 
