@@ -115,25 +115,26 @@ int Simulation::lireP(const std::string filepath){
 
 
 // carré de distances entre 2 partcules (r_ij)
-double Simulation::carre_dist(Particule const& p1, Particule const& p2){
-    double xx = p2.coorx()-p1.coorx();
-    double yy = p2.coory()-p1.coory();
-    double zz = p2.coorz()-p1.coorz();
+double Simulation::carre_dist(Particule const& p1, Particule const& p2, std::vector<double> const& vec){
+    double xx = p2.coorx()-p1.coorx()+vec[0];
+    double yy = p2.coory()-p1.coory()+vec[1];
+    double zz = p2.coorz()-p1.coorz()+vec[2];
     return xx*xx + yy*yy + zz*zz;
 }
 
 // calcul des forces agissant sur chacune des particules pour potentiel de Lennard Jones
 void Simulation::energieLJ(){
-    double fx, fy, fz, r_ij, for_all, temp1, temp2, tulj, r2, r6, r12, r_ij3, r_ij6;
+    double fx, fy, fz, r_ij, for_all, temp1, temp2, tulj, r_ij3, r_ij6;
     int i=0, j;
     //int n = 0; // debug line
 
     // Calcul de r^6 et de r^12
-    r2 = r*r; // r^2
-    r6 = r2*r2; // r^4
-    r6 *= r2; // r^6
-    r12 = r6*r6; // r^12
+    double r2 = r*r;        // r^2
+    double r6 = r2*r2;      // r^4
+    r6 *= r2;               // r^6
+    double r12 = r6*r6;     // r^12
 
+    // Itération sur les conditions périodiques
     for(std::vector<double> i_sym : *trans_vect){
 
         //std::cout << "Vecteur <" << i_sym.at(0) << ";"  << i_sym.at(1) << ";"  << i_sym.at(2) << ">\n"; // debug line
@@ -144,21 +145,18 @@ void Simulation::energieLJ(){
             fx=0, fy=0, fz=0, j=0;
             for(Particule p2: *list_particules){
                 if(j != i){
-                    r_ij = carre_dist(p1,p2);
-                    //std::cout << "valeur distance etre " << i << " et " << j << " = " << r_ij << "\n";
+                    r_ij = carre_dist(p1,p2,i_sym);
+                    //std::cout << "valeur distance etre " << i << " et " << j << " = " << r_ij << "\n"; // debug line
 
                     // Calcul de r_ij^3 et de r_ij^6
-                    r_ij3 = r_ij * r_ij;
-                    r_ij3 *= r_ij;
-                    r_ij6 = r_ij3 * r_ij3;
+                    r_ij3 = r_ij * r_ij;    // r_ij^2
+                    r_ij3 *= r_ij;          // r_ij^3
+                    r_ij6 = r_ij3 * r_ij3;  // r_ij^6
 
                     temp1 = r12 / r_ij6;
                     temp2 = r6 / r_ij3;
                     
-                    // on sait que 3.0^2 = 9.0
-                    //for_all = -48 * 0.2 * (std::pow((9.0/r_ij),6) - std::pow((9.0/r_ij),3));
                     for_all = -48 * epsilon * (temp1 - temp2);
-
 
                     fx += for_all * ((p1.coorx()-p2.coorx()) / r_ij);
                     fy += for_all * ((p1.coory()-p2.coory()) / r_ij);
@@ -177,9 +175,9 @@ void Simulation::energieLJ(){
 
             /* Pour chaque vecteur on va reécrire la valeur de list_forces. En gros, on ne garde que
             la valeur des list_forces calculés pour le dernier vecteur */
-            list_forces->at(i).at(0) = fx;
-            list_forces->at(i).at(1) = fy;
-            list_forces->at(i).at(2) = fz;
+            list_forces->at(i).at(0) += fx;
+            list_forces->at(i).at(1) += fy;
+            list_forces->at(i).at(2) += fz;
             
             // reset de j
             //std::cout << "j = "; // debug line
@@ -196,15 +194,16 @@ void Simulation::energieLJ(){
         i = 0;
     }
 
-    // moyenne sur les vecteurs ... BOF
+    // moyenne sur les vecteurs
     ulj /= N_sym;
 
-    /* Non pertinent
+    ///* Non pertinent pour le moment ...
     for(auto f: *list_forces){
         f.at(0) /= N_sym;
         f.at(1) /= N_sym;
         f.at(2) /= N_sym;
-    }*/
+    }
+    //*/
 
 }
 

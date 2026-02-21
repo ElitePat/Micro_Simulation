@@ -51,7 +51,7 @@ private:
     int lireP(const std::string filepath);
 
     // carré de distances entre 2 partcules
-    double carre_dist(Particule const& p1, Particule const& p2);
+    double carre_dist(Particule const& p1, Particule const& p2, std::vector<double> const& vec);
 
     // calcul des forces agissant sur chacune des particules pour potentiel de Lennard Jones
     void energieLJ();

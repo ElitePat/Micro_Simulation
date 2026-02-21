@@ -48,6 +48,10 @@ Executer le projet
 ```bash
 ./Main.exe
 ```
+Pour le mode DEBUG il est préférable de rediriger l'output vers un fichier de sortie à part pour eviter de remplir le terminal. Ainsi mieux vaut executer ceci
+```bash
+./Main.exe > ../data/log.txt
+```
 Pour nettoyer le dossier build (correctement) faire:
 ```bash
 cd build

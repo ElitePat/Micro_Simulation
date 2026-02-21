@@ -21,5 +21,3 @@ int main(int argc, char** argv){
     std::cout << "Fin du programme" << std::endl;
     return res;
 }
-
-/* Continuer debogage! */
