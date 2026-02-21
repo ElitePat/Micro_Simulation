@@ -14,16 +14,28 @@ Code écrit en C++, pour un processeur Intel, dans WSL.
 
 ## Procédure de compilation et d'exection
 
-On crée un dossier `build` et on se place dedans:
+Pour le mode DEBUG on se place dans le dossier:
 ```bash
-mkdir build
-cd build
+mkdir build-debug # si le dossier n'existe pas on le crée avant
+cd build-debug
 ```
-Construire le projet (en mode debug ou release):
+Pour construire le projet:
 ```bash
-cmake -DCMAKE_BUILD_TYPE=Debug .
-cmake -DCMAKE_BUILD_TYPE=Release .
+cmake -DCMAKE_BUILD_TYPE=Debug ..
 ```
+
+Pour le mode RELEASE on se place dans le dossier:
+```bash
+mkdir build-release # si le dossier n'existe pas on le crée avant
+cd build-release
+```
+Pour construire le projet:
+```bash
+cmake -DCMAKE_BUILD_TYPE=Release ..
+```
+
+Les prochaines étapes sont les mêmes pour les deux modes
+
 Compiler le projet:
 ```bash
 cmake --build .
