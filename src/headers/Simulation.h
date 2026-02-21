@@ -14,8 +14,13 @@
 
 
 #define N_particules_total 1000
-#define N_sym 27 // vecteurs de translation possibles
-#define L 42.0 // c'est un double !
+#define N_sym 27    // vecteurs de translation possibles
+
+// les constantes suivantes sont des doubles
+#define L 42.0      
+#define EPSILON 0.2
+#define R 3.0
+#define RCUT 10.0   // rayon de coupure  
 
 
 class Simulation{
@@ -23,12 +28,6 @@ private:
     /* Variables */
     // nombre local de particules
     int N_particules_local;
-
-    // valeur de l'epsilon
-    double epsilon = 0.2;
-
-    // valeur de r*:
-    double r = 3.0;
 
     // valeur de l'energie (selon le terme de Leonard-Jones)
     double ulj = 0;

@@ -2035,8 +2035,8 @@ Energie pour chaque point du système, forces fx fy fz:
 -1531.24,-8.84514,-63.6395
 -1.38674,-1.33076,-2.86424
 
-Somme des forces pour x, y, z: 15.5141, 0.470209, -0.575809
-ULJ = 1.40125e+14
+Somme des forces pour x, y, z: 15.5141, 0.470198, -0.575806
+ULJ = -0.000197094
 
 ==========Fin de l'execution de la Simulation==========
 Mémoire de la Simulation liberé !

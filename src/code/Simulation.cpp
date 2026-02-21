@@ -22,8 +22,16 @@ Simulation::~Simulation(){
 void Simulation::printInfo(){}
 
 
+
 // initialisation des vecteurs de translation
 void Simulation::trans_vect_init(){
+/*  Modifier cette fonction si j'ai le temps:
+    - n'accepter N_sym que si ça racine cubique est entière !
+    - repenser alors comment doit être réalisé le parcours
+    et l'affectation des valeurs dans trans_vect !
+        - par exemple: n'affecter que des 0, 1 et -1
+        puis tout multiplier par L !
+*/
     int n1=0, n0=0;
     double deb=-1*L; // debut des itérations
     double c1=deb, c2=deb, c0=deb;
@@ -113,36 +121,37 @@ int Simulation::lireP(const std::string filepath){
 }
 
 
-
 // carré de distances entre 2 partcules (r_ij)
 double Simulation::carre_dist(Particule const& p1, Particule const& p2, std::vector<double> const& vec){
-    double xx = p2.coorx()-p1.coorx()+vec[0];
-    double yy = p2.coory()-p1.coory()+vec[1];
-    double zz = p2.coorz()-p1.coorz()+vec[2];
+    double xx = p2.coorx()-(p1.coorx()+vec[0]);
+    double yy = p2.coory()-(p1.coory()+vec[1]);
+    double zz = p2.coorz()-(p1.coorz()+vec[2]);
     return xx*xx + yy*yy + zz*zz;
 }
 
 // calcul des forces agissant sur chacune des particules pour potentiel de Lennard Jones
 void Simulation::energieLJ(){
-    double fx, fy, fz, r_ij, for_all, temp1, temp2, tulj, r_ij3, r_ij6;
+
+    // Déclaration des variables
+    double r_ij, for_all, temp1, temp2, r_ij3, r_ij6;
     int i=0, j;
     //int n = 0; // debug line
 
     // Calcul de r^6 et de r^12
-    double r2 = r*r;        // r^2
+    double r2 = R*R;        // r^2
     double r6 = r2*r2;      // r^4
     r6 *= r2;               // r^6
     double r12 = r6*r6;     // r^12
 
     // Itération sur les conditions périodiques
     for(std::vector<double> i_sym : *trans_vect){
-
         //std::cout << "Vecteur <" << i_sym.at(0) << ";"  << i_sym.at(1) << ";"  << i_sym.at(2) << ">\n"; // debug line
 
+        i = 0;
         for(Particule p1 : *list_particules){
             //std::cout << "\n======================: i = " << i << "\n"; // debug line
 
-            fx=0, fy=0, fz=0, j=0;
+            j=0;
             for(Particule p2: *list_particules){
                 if(j != i){
                     r_ij = carre_dist(p1,p2,i_sym);
@@ -156,55 +165,27 @@ void Simulation::energieLJ(){
                     temp1 = r12 / r_ij6;
                     temp2 = r6 / r_ij3;
                     
-                    for_all = -48 * epsilon * (temp1 - temp2);
+                    for_all = -48 * EPSILON * (temp1 - temp2);
 
-                    fx += for_all * ((p1.coorx()-p2.coorx()) / r_ij);
-                    fy += for_all * ((p1.coory()-p2.coory()) / r_ij);
-                    fz += for_all * ((p1.coorz()-p2.coorz()) / r_ij);
+                    list_forces->at(i).at(0) += for_all * ((p1.coorx()-p2.coorx()) / r_ij);
+                    list_forces->at(i).at(1) += for_all * ((p1.coory()-p2.coory()) / r_ij);
+                    list_forces->at(i).at(2) += for_all * ((p1.coorz()-p2.coorz()) / r_ij);
                     //std::cout << "valeur force fx " << fx << "\n"; // debug line
                     //std::cout << " " << j << " "; // debug line
                 
-                    if(j > i){
-
-                        tulj += temp1 - (2 * temp2);
-                        tulj *= epsilon;
+                    // application de la troncature dans le calcul du terme de Leonard-Jones
+                    if((r_ij < RCUT) && (j > i)){
+                        ulj += temp1 - (2 * temp2);
                     }
                 }
                 ++j;
             }
-
-            /* Pour chaque vecteur on va reécrire la valeur de list_forces. En gros, on ne garde que
-            la valeur des list_forces calculés pour le dernier vecteur */
-            list_forces->at(i).at(0) += fx;
-            list_forces->at(i).at(1) += fy;
-            list_forces->at(i).at(2) += fz;
-            
-            // reset de j
-            //std::cout << "j = "; // debug line
-            j = 0;
             ++i;
-
         }
-        
-        tulj *= 4;
-        ulj += tulj;
-
-        // reset des variables
-        tulj = 0;
-        i = 0;
     }
 
-    // moyenne sur les vecteurs
-    ulj /= N_sym;
-
-    ///* Non pertinent pour le moment ...
-    for(auto f: *list_forces){
-        f.at(0) /= N_sym;
-        f.at(1) /= N_sym;
-        f.at(2) /= N_sym;
-    }
-    //*/
-
+    // valeur finale de ULJ, version tronqué
+    ulj = (EPSILON * 2) * ulj;
 }
 
 
