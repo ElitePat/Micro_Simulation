@@ -133,6 +133,8 @@ double Simulation::carre_dist(Particule const& p1, Particule const& p2, std::vec
 void Simulation::energieLJ(){
 
     // Déclaration des variables
+    /* On introduit certaines variables intermédiares pour attenuer l'accumulation d'erreurs
+    dues à la sommation de termes d'ordre de grandeurs très differents! */
     double r_ij, for_all, temp1, temp2, r_ij3, r_ij6;
     int i=0, j;
     //int n = 0; // debug line
@@ -151,31 +153,34 @@ void Simulation::energieLJ(){
         for(Particule p1 : *list_particules){
             //std::cout << "\n======================: i = " << i << "\n"; // debug line
 
-            j=0;
+            j = 0;
             for(Particule p2: *list_particules){
                 if(j != i){
                     r_ij = carre_dist(p1,p2,i_sym);
                     //std::cout << "valeur distance etre " << i << " et " << j << " = " << r_ij << "\n"; // debug line
 
-                    // Calcul de r_ij^3 et de r_ij^6
-                    r_ij3 = r_ij * r_ij;    // r_ij^2
-                    r_ij3 *= r_ij;          // r_ij^3
-                    r_ij6 = r_ij3 * r_ij3;  // r_ij^6
+                    if(r_ij < RCUT){ // application du rayon de troncature
 
-                    temp1 = r12 / r_ij6;
-                    temp2 = r6 / r_ij3;
+                        // Calcul de r_ij^3 et de r_ij^6
+                        r_ij3 = r_ij * r_ij;    // r_ij^2
+                        r_ij3 *= r_ij;          // r_ij^3
+                        r_ij6 = r_ij3 * r_ij3;  // r_ij^6
+
+                        temp1 = r12 / r_ij6;
+                        temp2 = r6 / r_ij3;
+                        
+                        for_all = -48 * EPSILON * (temp1 - temp2);
+
+                        list_forces->at(i).at(0) += for_all * ((p1.coorx()-p2.coorx()) / r_ij);
+                        list_forces->at(i).at(1) += for_all * ((p1.coory()-p2.coory()) / r_ij);
+                        list_forces->at(i).at(2) += for_all * ((p1.coorz()-p2.coorz()) / r_ij);
+                        //std::cout << "valeur force fx " << fx << "\n"; // debug line
+                        //std::cout << " " << j << " "; // debug line
                     
-                    for_all = -48 * EPSILON * (temp1 - temp2);
-
-                    list_forces->at(i).at(0) += for_all * ((p1.coorx()-p2.coorx()) / r_ij);
-                    list_forces->at(i).at(1) += for_all * ((p1.coory()-p2.coory()) / r_ij);
-                    list_forces->at(i).at(2) += for_all * ((p1.coorz()-p2.coorz()) / r_ij);
-                    //std::cout << "valeur force fx " << fx << "\n"; // debug line
-                    //std::cout << " " << j << " "; // debug line
-                
-                    // application de la troncature dans le calcul du terme de Leonard-Jones
-                    if((r_ij < RCUT) && (j > i)){
-                        ulj += temp1 - (2 * temp2);
+                        // calcul du terme de Leonard-Jones
+                        if(j > i){
+                            ulj += temp1 - (2 * temp2);
+                        }
                     }
                 }
                 ++j;
