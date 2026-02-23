@@ -29,7 +29,7 @@
 #define N 3*N_particules_total-3        // Nombre de degrées de liberté du système
 
 //
-#define T 2 // pas de temps maximal
+#define T 10 // pas de temps maximal
 
 
 class Simulation{
@@ -82,6 +82,11 @@ private:
 
     // calcul des forces agissant sur chacune des particules pour potentiel de Lennard Jones
     void energieLJ();
+
+    // distances entre 2 partcules
+    double distX(Particule const& p1, Particule const& p2);
+    double distY(Particule const& p1, Particule const& p2);
+    double distZ(Particule const& p1, Particule const& p2);
 
     // algorithme de velocity Verlet sans contrôle de la température
     void vverlet();

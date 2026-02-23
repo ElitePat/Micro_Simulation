@@ -27,13 +27,59 @@ Simulation::Simulation(){
 Simulation::~Simulation(){
     delete list_particules;
     delete list_forces;
+    delete list_particules_prec;
+    delete list_v;
+    delete list_v_prec;
+    delete list_mc;
+    delete trans_vect;
     #ifndef NDEBUG // Debug code"
     std::cout << "Mémoire de la Simulation liberé !\n";
     #endif
 }
 
 // Affiche les information/état de la simulation au momment de l'appel
-void Simulation::printInfo(){}
+void Simulation::printInfo(){ // debug function
+    /*
+    #ifndef NDEBUG
+    
+    std::cout << "Vecteur -> conditions périodiques:\n";
+    for(auto t : *trans_vect){
+        //std::cout << t[0] << " " << t[1] << " "  << t[2] << "\n"; // debug line
+    }
+
+    std::cout << "\nAffichage des points lus dans le fichier: \npoints en  x,y,z\n";
+    for(Particule p : *list_particules){
+        //p.afficheParticule();
+    }
+
+    std::cout << "\nList Particules\n";
+    for(auto force : *list_particules){
+        //std::cout << force.coorx() << "," << force.coory() << ","  << force.coorx() << "\n";
+    }
+
+    std::cout << "\nEnergie pour chaque Particule, forces fx fy fz:\n";
+    for(auto force : *list_forces){
+        //std::cout << force[0] << "," << force[1] << ","  << force[2] << "\n";
+    }
+    
+    #endif
+    */
+
+    // Variables locales
+    double sumfx=0, sumfy=0, sumfz=0;
+
+    // On vérifie que la somme des forces agissant sur toutes les particules est nulle
+    for(auto force : *list_forces){
+        sumfx += force[0];
+        sumfy += force[1];
+        sumfz += force[2];
+    }
+    std::cout << "\nSomme des forces pour x, y, z: " << sumfx << ", " << sumfy << ", "  << sumfz << "\n";
+    std::cout << "ULJ = " << ulj << "\n";
+    //std::cout << "Soit en somme -> " << (sumfx+sumfy) << "\n"; // debug line
+    std::cout << "ENERGIE_CINETIQUE = " << ec << " et Température cinétique = " << tc << "\n";
+
+}
 
 
 
@@ -188,7 +234,7 @@ void Simulation::energieLJ(){
                         list_forces->at(i).at(0) += for_all * ((p1.coorx()-p2.coorx()) / r_ij);
                         list_forces->at(i).at(1) += for_all * ((p1.coory()-p2.coory()) / r_ij);
                         list_forces->at(i).at(2) += for_all * ((p1.coorz()-p2.coorz()) / r_ij);
-                        //std::cout << "valeur force fx " << fx << "\n"; // debug line
+                        //std::cout << "valeur force fy " << list_forces->at(i).at(1) << "\n"; // debug line
                         //std::cout << " " << j << " "; // debug line
                     
                         // calcul du terme de Leonard-Jones
@@ -207,6 +253,22 @@ void Simulation::energieLJ(){
     ulj = (EPSILON * 2) * ulj;
 }
 
+// distances entre 2 partcules
+double Simulation::distX(Particule const& p1, Particule const& p2){
+    double xx = p2.coorx()-p1.coorx();
+    return xx*xx;
+}
+// distances entre 2 partcules
+double Simulation::distY(Particule const& p1, Particule const& p2){
+    double yy = p2.coory()-p1.coory();
+    return yy*yy;
+}
+// distances entre 2 partcules
+double Simulation::distZ(Particule const& p1, Particule const& p2){
+    double zz = p2.coorz()-p1.coorz();
+    return zz*zz;
+}
+
 // algorithme de velicty Verlet sans contrôle de la température
 void Simulation::vverlet(){
     /* Pour chaque pas de temps nous permet de calculer la vitesse de chaque particule et d'actualiser sa position
@@ -219,10 +281,10 @@ void Simulation::vverlet(){
                                         (-1 * list_v->at(i).at(1) * list_particules_prec->at(i).coory()) / (1 - list_v->at(i).at(1)),
                                         (-1 * list_v->at(i).at(2) * list_particules_prec->at(i).coorz()) / (1 - list_v->at(i).at(2)));
     
-        // nouvelles vitesses
-        list_v->at(i).at(0) = (list_forces->at(i).at(0) * list_v_prec->at(i).at(0)) / (1 + list_forces->at(i).at(0));
-        list_v->at(i).at(1) = (list_forces->at(i).at(1) * list_v_prec->at(i).at(1)) / (1 + list_forces->at(i).at(1));
-        list_v->at(i).at(2) = (list_forces->at(i).at(2) * list_v_prec->at(i).at(2)) / (1 + list_forces->at(i).at(2));
+        // nouvelles vitesses vx = sqrt(rx^2 + r_(-1)x^2)
+        list_v->at(i).at(0) = sqrt(distX(list_particules->at(i),list_particules_prec->at(i)));
+        list_v->at(i).at(1) = sqrt(distY(list_particules->at(i),list_particules_prec->at(i)));
+        list_v->at(i).at(2) = sqrt(distZ(list_particules->at(i),list_particules_prec->at(i)));
     }
 }
 
@@ -234,8 +296,8 @@ void Simulation::cinetic_ET(){
     for(auto p : *list_mc){
         temp += p.at(0) * p.at(0) + p.at(1) * p.at(1) + p.at(2) * p.at(2);
     }
-    ec = temp / 2 * CONVERSION_FORCE * M;
-    tc = ec / N * CONSTANTE_R;
+    ec = temp / (2 * CONVERSION_FORCE * M);
+    tc = ec / (N * CONSTANTE_R);
 }
 
 
@@ -246,34 +308,27 @@ int Simulation::run(std::string const& filepath){
 
     // initialisation des vecteurs de translation
     trans_vect_init();
-    #ifndef NDEBUG // Debug code
-    std::cout << "Vecteur -> conditions périodiques:\n";
-    for(auto t : *trans_vect){
-        std::cout << t[0] << " " << t[1] << " "  << t[2] << "\n"; // debug line
-    }
-    #endif
 
     // Lecture des particules dans le fichier particule
     int test = lireP(filepath);
     if(test){
         std::cout << "Échec de la simulation !\n";
         return 1;
-    }
-    #ifndef NDEBUG // Debug code
-    std::cout << "\nAffichage des points lus dans le fichier: \npoints en  x,y,z\n";
-    for(Particule p : *list_particules){
-        p.afficheParticule();
-    }
-    #endif  
+    }  
 
     // pour chaque pas de temps
     for(t=0; t<T; ++t){
 
-        // Remise a zéro de forces inter-particulaires
+        #ifndef NDEBUG // Debug line
+        std::cout << "\n-----------------Itération n°" << t << "-----------------\n";
+        #endif
+
+        // Remise a zéro de forces sur chaque particule
         for(int i=0;i<N_particules_total;++i){
             list_forces->at(i).at(0) = 0;
             list_forces->at(i).at(1) = 0;
             list_forces->at(i).at(2) = 0;
+            //std::cout << list_forces->at(i).at(0) << "," << list_forces->at(i).at(1) << ","  << list_forces->at(i).at(2) << "\n"; // debug line
         }
         // Calcul de l'energie du système
         energieLJ();
@@ -304,25 +359,9 @@ int Simulation::run(std::string const& filepath){
         cinetic_ET();
 
         // suite ...
-    }
 
-    // On vérifie que la somme des forces agissant sur toutes les particules est nulle
-    double sumfx=0, sumfy=0, sumfz=0;
-    #ifndef NDEBUG // Debug line
-    std::cout << "\nEnergie pour chaque point du système, forces fx fy fz:\n";
-    #endif
-    for(auto force : *list_forces){
-        #ifndef NDEBUG // for Debug 
-        std::cout << force[0] << "," << force[1] << ","  << force[2] << "\n"; // debug line
-        #endif
-        sumfx += force[0];
-        sumfy += force[1];
-        sumfz += force[2];
+        printInfo();
     }
-    //std::cout << "==================\n";
-    std::cout << "\nSomme des forces pour x, y, z: " << sumfx << ", " << sumfy << ", "  << sumfz << "\n";
-    std::cout << "ULJ = " << ulj << "\n";
-    //std::cout << "Soit en somme -> " << (sumfx+sumfy) << "\n"; // debug line
 
     std::cout << "\n==========Fin de l'execution de la Simulation==========\n";
     return 0;
