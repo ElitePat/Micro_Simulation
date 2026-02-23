@@ -1,0 +1,30 @@
+Projet de Simulation Microscopique
+==========Début d'execution de la Simulation==========
+
+
+Rayon de cupure -> Nombre moyen de voisins
+8	0.0717037
+10	0.137852
+12	0.190593
+14	0.246296
+Vitesse de toutes les composantes = 1.33779
+
+Somme des forces pour x, y, z: 0, 0, 0
+ULJ = 0
+ENERGIE_CINETIQUE = 883.415 et Température cinétique = 0.294472
+Energie totale,Energie potentielle,Température
+
+3.05727e+10,4626.06,1.54202
+6.95928e+23,1.08103e+06,360.343
+4.09442e+21,1.34798e+07,4493.26
+7.79232e+37,1.61682e+12,5.38939e+08
+3.14121e+42,7.14828e+10,2.38276e+07
+1.44358e+53,2.87585e+18,9.58618e+14
+1.48576e+79,9.00915e+14,3.00305e+11
+6.48987e+124,5.14975e+24,1.71658e+21
+1.61713e+198,2.38835e+19,7.96116e+15
+inf,inf,inf
+
+==========Fin de l'execution de la Simulation==========
+Mémoire de la Simulation liberé !
+Fin du programme

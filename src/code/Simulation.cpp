@@ -271,6 +271,8 @@ void Simulation::energieLJ(){
         list_forces->at(i).at(2) = 0;
     }
 
+    // on reset la valeur de l'energie totale
+    ulj = 0;
     // Itération sur les conditions périodiques
     for(std::vector<double> i_sym : *trans_vect){
         //std::cout << "Vecteur <" << i_sym.at(0) << ";"  << i_sym.at(1) << ";"  << i_sym.at(2) << ">\n"; // debug line
@@ -428,14 +430,39 @@ int Simulation::run(std::string const& filepath_xyz, std::string const& filepath
         std::cout << (RCUT+r) << "\t" << pproches((RCUT+r)) << "\n";
     }
 
-    
+    double vitesse = 0, temp;
+    for(int i=0; i<N_particules_total; ++i){
+        // anciennes vitesses
+        list_v_prec->at(i).at(0) = list_v->at(i).at(0);
+        list_v_prec->at(i).at(1) = list_v->at(i).at(1);
+        list_v_prec->at(i).at(2) = list_v->at(i).at(2);
 
-    /*
+    }
+    int j=0, fact=100;
+    for(auto v: *list_v_prec){
+        temp = v.at(0) + v.at(1) + v.at(2);
+        vitesse += temp;
+        if(std::fabs(temp) > RCUT){ // si la particule va trop vite
+            // recalibrage des nouvelles vitesses
+            list_v->at(j).at(0) /= fact;
+            list_v->at(j).at(1) /= fact;
+            list_v->at(j).at(2) /= fact;
+            //std::cout << "Particule n°" << j << " s'est pris une amende. Mtn elle ralentit\n";
+        }
+        ++j;
+    }
+    std::cout << "Vitesse de toutes les composantes = " << vitesse << "\n";
+    // calcul de l'energie et de la temperature cinetique
+    cinetic_ET();
+    printInfo(); // affichage infos
+
+    std::cout << "Energie totale,Energie potentielle,Température\n\n";
+
     // pour chaque pas de temps
     for(t=0; t<T; ++t){
 
         #ifndef NDEBUG // Debug line
-        std::cout << "\n-----------------Itération n°" << t << "-----------------\n";
+        //std::cout << "\n-----------------Itération n°" << t << "-----------------\n";
         #endif
 
         // Calcul de l'energie du système
@@ -468,9 +495,10 @@ int Simulation::run(std::string const& filepath_xyz, std::string const& filepath
 
         // suite ...
 
-        printInfo();
+        //printInfo();
+        std::cout << ulj << "," << ec << "," << tc << "\n";
+
     }
-    */
 
     std::cout << "\n==========Fin de l'execution de la Simulation==========\n";
     return 0;

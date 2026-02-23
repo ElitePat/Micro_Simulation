@@ -25,7 +25,7 @@
 // Pour Velocity Verlet
 #define CONVERSION_FORCE 0.0001*4.186
 #define M 18                            // masse d'une particule
-#define CONSTANTE_R 0.00199
+#define CONSTANTE_R 8.31e-7
 #define N 3*N_particules_total-3        // Nombre de degrées de liberté du système
 
 //
