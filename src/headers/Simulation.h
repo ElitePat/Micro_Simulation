@@ -77,6 +77,9 @@ private:
     // lecture de N particules dans un fichier (contenant N particules ou plus ...)
     int lireP(const std::string filepath);
 
+    // lecture de N moments cinétiques dans un fichier (contenant N particules ou plus ...)
+    int lireM(const std::string filepath);
+
     // carré de distances entre 2 partcules
     double carre_dist(Particule const& p1, Particule const& p2, std::vector<double> const& vec);
 
@@ -104,7 +107,7 @@ public:
     void printInfo();
 
     // Lancer la simulation
-    int run(std::string const& filepath);
+    int run(std::string const& filepath_xyz, std::string const& filepath_mc);
 };
 
 

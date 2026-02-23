@@ -148,7 +148,7 @@ int Simulation::lireP(const std::string filepath){
         i = 0;
         while(std::getline(sligne, cell, ' ')){
             try{
-                if(stoi(cell) == 2){
+                if(stoi(cell) == -1){
                     continue;
                 }
                 switch(i){
@@ -172,6 +172,64 @@ int Simulation::lireP(const std::string filepath){
 
         // creation nouvelle particule
         list_particules->at(p).update_coor(tmpx,tmpy,tmpz);
+        ++p;
+    }
+
+    // on ferme le fichier en sortie
+    fs.close();
+    return 0;
+}
+
+// lecture de N moments cinétiques dans un fichier (contenant N particules ou plus ...)
+int Simulation::lireM(const std::string filepath){
+
+    // ouvrir un fichier en mode input
+    std::ifstream fs(filepath);
+    if(!fs.is_open()){ // rapport de l'erreur
+        std::cerr << "ERREUR: le fichier n'a pas pu être ouvert\n";
+        return 1;
+    }
+
+    // varaibles temporaires
+    std::string ligne, cell;
+    double tmpx, tmpy, tmpz;
+    int i=0,p=0;
+
+    // Pour ignorer la première ligne
+    std::getline(fs,ligne);
+    // Tant que le fichier n'est pas à la fin
+    while(std::getline(fs,ligne)){
+
+        std::stringstream sligne(ligne);
+        
+        // Ce n'est peut-être pas comme ça qu'on fait mais au moins ça marche :)
+        i = 0;
+        while(std::getline(sligne, cell, ' ')){
+            try{
+                if(stoi(cell) == -1){
+                    continue;
+                }
+                switch(i){
+                    case 0:
+                        tmpx = stod(cell);
+                        break;
+                    case 1:
+                        tmpy = stod(cell);
+                        break;
+                    case 2:
+                        tmpz = stod(cell);
+                        break;
+                    default:
+                        std::cerr << "Attention: cas inconnu abordé !";
+                }
+            }catch(std::invalid_argument const& ex){
+                continue;
+            }
+            ++i;
+        }        
+
+        // creation nouvelle particule
+        list_mc->at(p).update_coor(tmpx,tmpy,tmpz);
         ++p;
     }
 
@@ -302,7 +360,7 @@ void Simulation::cinetic_ET(){
 
 
 // Lance la simulation
-int Simulation::run(std::string const& filepath){
+int Simulation::run(std::string const& filepath_xyz, std::string const& filepath_mc){
 
     std::cout << "==========Début d'execution de la Simulation==========\n\n";
 
@@ -310,11 +368,17 @@ int Simulation::run(std::string const& filepath){
     trans_vect_init();
 
     // Lecture des particules dans le fichier particule
-    int test = lireP(filepath);
+    int test = lireP(filepath_xyz);
     if(test){
         std::cout << "Échec de la simulation !\n";
         return 1;
-    }  
+    }
+    // Lecture des moments cinétiques dans le fichier particule
+    int test = lireM(filepath_mc);
+    if(test){
+        std::cout << "Échec de la simulation !\n";
+        return 1;
+    }
 
     // pour chaque pas de temps
     for(t=0; t<T; ++t){

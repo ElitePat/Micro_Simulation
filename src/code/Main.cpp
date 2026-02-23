@@ -4,7 +4,8 @@
 #include "../headers/Simulation.h"
 
 
-const std::string file = "../data/particule";
+const std::string file_xyz = "../data/examen_270226_xyz";
+const std::string file_mc = "../data/examen_270226_mci";
 
 int main(int argc, char** argv){
 
@@ -14,7 +15,7 @@ int main(int argc, char** argv){
     Simulation* simu = new Simulation{};
 
     // Lancement de la simulation
-    int res = simu->run(file);
+    int res = simu->run(file_xyz,file_mc);
 
     // Terminaison
     delete simu;
