@@ -14,13 +14,22 @@
 
 
 #define N_particules_total 1000
-#define N_sym 27    // vecteurs de translation possibles
+#define N_sym 27                        // vecteurs de translation possibles
 
 // les constantes suivantes sont des doubles
 #define L 42.0      
 #define EPSILON 0.2
 #define R 3.0
-#define RCUT 10.0   // rayon de coupure  
+#define RCUT 10.0                       // rayon de coupure
+
+// Pour Velocity Verlet
+#define CONVERSION_FORCE 0.0001*4.186
+#define M 18                            // masse d'une particule
+#define CONSTANTE_R 0.00199
+#define N 3*N_particules_total-3        // Nombre de degrées de liberté du système
+
+//
+#define T 2 // pas de temps maximal
 
 
 class Simulation{
@@ -31,12 +40,31 @@ private:
 
     // valeur de l'energie (selon le terme de Leonard-Jones)
     double ulj = 0;
+    
+    // valeur de l'energie cinétique du système
+    double ec = 0;
+
+    // valeur de la température cinétique du système
+    double tc = 0;
+
+    // temps actuel de la simulation
+    int t;
 
     // Liste des particules dans la simulation
     std::vector<Particule> *list_particules;
+    // Liste des positions précdentes des particules
+    std::vector<Particule> *list_particules_prec;
 
     // forces pour chaque particule
     std::vector<std::vector<double>> *list_forces;
+
+    // vitesses de chaque particule dans les 3 axes
+    std::vector<std::vector<double>> *list_v;
+    // vitesses precedentes de chaque particule
+    std::vector<std::vector<double>> *list_v_prec;
+
+    // moment cinétique pour chaque particule
+    std::vector<std::vector<double>> *list_mc;
 
     // vecteurs de translation
     std::vector<std::vector<double>> *trans_vect;
@@ -54,6 +82,12 @@ private:
 
     // calcul des forces agissant sur chacune des particules pour potentiel de Lennard Jones
     void energieLJ();
+
+    // algorithme de velocity Verlet sans contrôle de la température
+    void vverlet();
+
+    // calcul de l'energie cinétique et de la température cinétique du système
+    void cinetic_ET();
 
 public:
     // Constructeur

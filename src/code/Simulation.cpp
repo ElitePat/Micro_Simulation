@@ -3,8 +3,22 @@
 // Constructeur
 Simulation::Simulation(){
 
+    /* L'initialisation des listes ci-dessous ne fait que remplir les vecteurs avec des zéros! */
+
+    // initialisation des particules du système
     list_particules = new std::vector<Particule>(N_particules_total);
-    list_forces = new std::vector<std::vector<double>>(N_particules_total, std::vector<double>(3)); // soit 3 valeurs pour chaque particule
+    // initialisation des positions antérieures des particules du système
+    list_particules_prec = new std::vector<Particule>(N_particules_total);
+
+    // pour chaque particule on represente les 3 forces sur les axes x, y, et z soit 3 valeurs
+    list_forces = new std::vector<std::vector<double>>(N_particules_total, std::vector<double>(3));
+    // même logique pour les vitesses de chaque particule
+    list_v = new std::vector<std::vector<double>>(N_particules_total, std::vector<double>(3));
+    list_v_prec = new std::vector<std::vector<double>>(N_particules_total, std::vector<double>(3));
+    // même logique pour les moments cinétiques de chaque particule
+    list_mc = new std::vector<std::vector<double>>(N_particules_total, std::vector<double>(3));
+
+    // initialisation des vecteurs de translation, pour les conditions périodiques
     trans_vect = new std::vector<std::vector<double>>(N_sym, std::vector<double>(3));
 
 }
@@ -25,13 +39,13 @@ void Simulation::printInfo(){}
 
 // initialisation des vecteurs de translation
 void Simulation::trans_vect_init(){
-/*  Modifier cette fonction si j'ai le temps:
-    - n'accepter N_sym que si ça racine cubique est entière !
-    - repenser alors comment doit être réalisé le parcours
-    et l'affectation des valeurs dans trans_vect !
-        - par exemple: n'affecter que des 0, 1 et -1
-        puis tout multiplier par L !
-*/
+    /* Modifier cette fonction si j'ai le temps:
+        - n'accepter N_sym que si ça racine cubique est entière !
+        - repenser alors comment doit être réalisé le parcours
+        et l'affectation des valeurs dans trans_vect !
+            - par exemple: n'affecter que des 0, 1 et -1
+            puis tout multiplier par L !
+    */
     int n1=0, n0=0;
     double deb=-1*L; // debut des itérations
     double c1=deb, c2=deb, c0=deb;
@@ -193,6 +207,37 @@ void Simulation::energieLJ(){
     ulj = (EPSILON * 2) * ulj;
 }
 
+// algorithme de velicty Verlet sans contrôle de la température
+void Simulation::vverlet(){
+    /* Pour chaque pas de temps nous permet de calculer la vitesse de chaque particule et d'actualiser sa position
+    pour le pas de temps suivant! */
+
+    // actualisation pour chaque particule du système
+    for(int i=0; i<N_particules_total; ++i){
+        // nouvelle positions
+        list_particules->at(i).update_coor((-1 * list_v->at(i).at(0) * list_particules_prec->at(i).coorx()) / (1 - list_v->at(i).at(0)),
+                                        (-1 * list_v->at(i).at(1) * list_particules_prec->at(i).coory()) / (1 - list_v->at(i).at(1)),
+                                        (-1 * list_v->at(i).at(2) * list_particules_prec->at(i).coorz()) / (1 - list_v->at(i).at(2)));
+    
+        // nouvelles vitesses
+        list_v->at(i).at(0) = (list_forces->at(i).at(0) * list_v_prec->at(i).at(0)) / (1 + list_forces->at(i).at(0));
+        list_v->at(i).at(1) = (list_forces->at(i).at(1) * list_v_prec->at(i).at(1)) / (1 + list_forces->at(i).at(1));
+        list_v->at(i).at(2) = (list_forces->at(i).at(2) * list_v_prec->at(i).at(2)) / (1 + list_forces->at(i).at(2));
+    }
+}
+
+// calcul de ec et de tc
+void Simulation::cinetic_ET(){
+    /* La valeur de la masse étant constante on peut la sortir de la boucle de sommation pour grandement réduire
+    le nombre de divisions */
+    double temp = 0;
+    for(auto p : *list_mc){
+        temp += p.at(0) * p.at(0) + p.at(1) * p.at(1) + p.at(2) * p.at(2);
+    }
+    ec = temp / 2 * CONVERSION_FORCE * M;
+    tc = ec / N * CONSTANTE_R;
+}
+
 
 // Lance la simulation
 int Simulation::run(std::string const& filepath){
@@ -208,7 +253,7 @@ int Simulation::run(std::string const& filepath){
     }
     #endif
 
-    // Lecture des particules
+    // Lecture des particules dans le fichier particule
     int test = lireP(filepath);
     if(test){
         std::cout << "Échec de la simulation !\n";
@@ -219,10 +264,48 @@ int Simulation::run(std::string const& filepath){
     for(Particule p : *list_particules){
         p.afficheParticule();
     }
-    #endif
+    #endif  
 
-    // Calcul de l'energie du système
-    energieLJ();
+    // pour chaque pas de temps
+    for(t=0; t<T; ++t){
+
+        // Remise a zéro de forces inter-particulaires
+        for(int i=0;i<N_particules_total;++i){
+            list_forces->at(i).at(0) = 0;
+            list_forces->at(i).at(1) = 0;
+            list_forces->at(i).at(2) = 0;
+        }
+        // Calcul de l'energie du système
+        energieLJ();
+
+        // sauvegarde de l'itéation précdente pour chaque particule du système
+        for(int i=0; i<N_particules_total; ++i){
+            // position des particules
+            list_particules_prec->at(i).update_coor(list_particules->at(i).coorx(),
+                                                    list_particules->at(i).coory(),
+                                                    list_particules->at(i).coorz());
+            // anciennes vitesses
+            list_v_prec->at(i).at(0) = list_v->at(i).at(0);
+            list_v_prec->at(i).at(1) = list_v->at(i).at(1);
+            list_v_prec->at(i).at(2) = list_v->at(i).at(2);
+        }
+
+        // calcul des vitesses
+        vverlet();
+
+        // calcul du moment cinétique
+        for(int i=0; i<N_particules_total; ++i){
+            list_mc->at(i).at(0) = list_v->at(i).at(0) * M * CONVERSION_FORCE;
+            list_mc->at(i).at(1) = list_v->at(i).at(1) * M * CONVERSION_FORCE;
+            list_mc->at(i).at(2) = list_v->at(i).at(2) * M * CONVERSION_FORCE;
+        }
+
+        // calcul de l'energie et de la temperature cinetique
+        cinetic_ET();
+
+        // suite ...
+    }
+
     // On vérifie que la somme des forces agissant sur toutes les particules est nulle
     double sumfx=0, sumfy=0, sumfz=0;
     #ifndef NDEBUG // Debug line
