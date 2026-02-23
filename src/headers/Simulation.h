@@ -17,9 +17,9 @@
 #define N_sym 27                        // vecteurs de translation possibles
 
 // les constantes suivantes sont des doubles
-#define L 42.0      
-#define EPSILON 0.2
-#define R 3.0
+#define L 31.09   
+#define EPSILON 0.53
+#define R 2.850
 #define RCUT 10.0                       // rayon de coupure
 
 // Pour Velocity Verlet
@@ -96,6 +96,9 @@ private:
 
     // calcul de l'energie cinétique et de la température cinétique du système
     void cinetic_ET();
+
+    // nombre moyen de particules situées à une distance inférieure à Rc
+    double pproches(int const& rcut);
 
 public:
     // Constructeur

@@ -82,7 +82,6 @@ void Simulation::printInfo(){ // debug function
 }
 
 
-
 // initialisation des vecteurs de translation
 void Simulation::trans_vect_init(){
     /* Modifier cette fonction si j'ai le temps:
@@ -229,7 +228,9 @@ int Simulation::lireM(const std::string filepath){
         }        
 
         // creation nouvelle particule
-        list_mc->at(p).update_coor(tmpx,tmpy,tmpz);
+        list_mc->at(p).at(0) = tmpx;
+        list_mc->at(p).at(1) = tmpy;
+        list_mc->at(p).at(2) = tmpz;
         ++p;
     }
 
@@ -262,6 +263,13 @@ void Simulation::energieLJ(){
     double r6 = r2*r2;      // r^4
     r6 *= r2;               // r^6
     double r12 = r6*r6;     // r^12
+
+    // Remise a zéro de forces sur chaque particule
+    for(int i=0;i<N_particules_total;++i){
+        list_forces->at(i).at(0) = 0;
+        list_forces->at(i).at(1) = 0;
+        list_forces->at(i).at(2) = 0;
+    }
 
     // Itération sur les conditions périodiques
     for(std::vector<double> i_sym : *trans_vect){
@@ -358,6 +366,33 @@ void Simulation::cinetic_ET(){
     tc = ec / (N * CONSTANTE_R);
 }
 
+// nombre moyen de particules situées à une distance inférieure à Rc
+double Simulation::pproches(int const& rcut){
+    double somme_moy=0, nb, r_ij;
+    int i,j;
+
+    for(std::vector<double> i_sym : *trans_vect){
+        i=0;
+        nb=0;
+        for(Particule p1 : *list_particules){
+            j=0;
+            for(Particule p2: *list_particules){
+                if(j != i){
+                    r_ij = carre_dist(p1,p2,i_sym);
+                    if(r_ij < rcut){ // application du rayon de troncature
+                        nb++;
+                    }
+                }
+                ++j;
+            }
+            ++i;
+        }
+        somme_moy += nb / N_particules_total;
+    }
+    return somme_moy / N_sym;
+}
+
+
 
 // Lance la simulation
 int Simulation::run(std::string const& filepath_xyz, std::string const& filepath_mc){
@@ -374,12 +409,28 @@ int Simulation::run(std::string const& filepath_xyz, std::string const& filepath
         return 1;
     }
     // Lecture des moments cinétiques dans le fichier particule
-    int test = lireM(filepath_mc);
+    test = lireM(filepath_mc);
     if(test){
         std::cout << "Échec de la simulation !\n";
         return 1;
     }
 
+    // Conversion des moments cinétiques en vitesse (pour chaque particule)
+    for(int i=0; i<N_particules_total; ++i){
+        list_v->at(i).at(0) = list_mc->at(i).at(0) / (M * CONVERSION_FORCE);
+        list_v->at(i).at(1) = list_mc->at(i).at(1) / (M * CONVERSION_FORCE);
+        list_v->at(i).at(2) = list_mc->at(i).at(2) / (M * CONVERSION_FORCE);
+    }
+
+    // calcul du nombre moyen de particules situées à une distance inférieure à Rc
+    std::cout << "\nRayon de cupure -> Nombre moyen de voisins\n";
+    for(int r=-2; r<5; r+=2){
+        std::cout << (RCUT+r) << "\t" << pproches((RCUT+r)) << "\n";
+    }
+
+    
+
+    /*
     // pour chaque pas de temps
     for(t=0; t<T; ++t){
 
@@ -387,13 +438,6 @@ int Simulation::run(std::string const& filepath_xyz, std::string const& filepath
         std::cout << "\n-----------------Itération n°" << t << "-----------------\n";
         #endif
 
-        // Remise a zéro de forces sur chaque particule
-        for(int i=0;i<N_particules_total;++i){
-            list_forces->at(i).at(0) = 0;
-            list_forces->at(i).at(1) = 0;
-            list_forces->at(i).at(2) = 0;
-            //std::cout << list_forces->at(i).at(0) << "," << list_forces->at(i).at(1) << ","  << list_forces->at(i).at(2) << "\n"; // debug line
-        }
         // Calcul de l'energie du système
         energieLJ();
 
@@ -426,6 +470,7 @@ int Simulation::run(std::string const& filepath_xyz, std::string const& filepath
 
         printInfo();
     }
+    */
 
     std::cout << "\n==========Fin de l'execution de la Simulation==========\n";
     return 0;

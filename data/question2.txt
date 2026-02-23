@@ -3,10 +3,10 @@ Projet de Simulation Microscopique
 
 
 Rayon de cupure -> Nombre moyen de voisins
-8	0.060963
-10	0.118444
-12	0.163037
-14	0.207259
+8	0.0717037
+10	0.137852
+12	0.190593
+14	0.246296
 
 ==========Fin de l'execution de la Simulation==========
 Mémoire de la Simulation liberé !
