@@ -12,7 +12,7 @@ Code écrit en C++, pour un processeur Intel, dans WSL.
 - Le dossier [data](data/) contient les differents jeux de données.
 - Le dossier [src](src/) contient les fichiers source du programme.
 
-## Procédure de compilation et d'exection
+## Procédure de compilation et d'execution
 
 Pour le mode DEBUG on se place dans le dossier:
 ```bash
