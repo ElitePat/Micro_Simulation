@@ -7,14 +7,12 @@ Simulation::Simulation(){
 
     // initialisation des particules du système
     list_particules = new std::vector<Particule>(N_particules_total);
-    // initialisation des positions antérieures des particules du système
-    list_particules_prec = new std::vector<Particule>(N_particules_total);
 
     // pour chaque particule on represente les 3 forces sur les axes x, y, et z soit 3 valeurs
     list_forces = new std::vector<std::vector<double>>(N_particules_total, std::vector<double>(3));
     // même logique pour les vitesses de chaque particule
     list_v = new std::vector<std::vector<double>>(N_particules_total, std::vector<double>(3));
-    list_v_prec = new std::vector<std::vector<double>>(N_particules_total, std::vector<double>(3));
+    list_v_inter = new std::vector<std::vector<double>>(N_particules_total, std::vector<double>(3));
     // même logique pour les moments cinétiques de chaque particule
     list_mc = new std::vector<std::vector<double>>(N_particules_total, std::vector<double>(3));
 
@@ -27,9 +25,8 @@ Simulation::Simulation(){
 Simulation::~Simulation(){
     delete list_particules;
     delete list_forces;
-    delete list_particules_prec;
     delete list_v;
-    delete list_v_prec;
+    delete list_v_inter;
     delete list_mc;
     delete trans_vect;
     #ifndef NDEBUG // Debug code"
@@ -337,22 +334,39 @@ double Simulation::distZ(Particule const& p1, Particule const& p2){
     return zz*zz;
 }
 
-// algorithme de velicty Verlet sans contrôle de la température
+// algorithme de velocity Verlet 
 void Simulation::vverlet(){
-    /* Pour chaque pas de temps nous permet de calculer la vitesse de chaque particule et d'actualiser sa position
-    pour le pas de temps suivant! */
+    /* On va appeler cette fonction pour chaque pas de temps pour toutes les particules de la simulation */
 
-    // actualisation pour chaque particule du système
+    // pour chaque particule du système
     for(int i=0; i<N_particules_total; ++i){
-        // nouvelle positions
+        // 1er equation algo
+        list_v_inter->at(i).at(0) = list_v->at(i).at(0) - (list_forces->at(i).at(0) / 2 * M);
+        list_v_inter->at(i).at(1) = list_v->at(i).at(1) - (list_forces->at(i).at(1) / 2 * M);
+        list_v_inter->at(i).at(2) = list_v->at(i).at(2) - (list_forces->at(i).at(2) / 2 * M);
+
+        // 2eme equation algo
+        list_particules->at(i).update_coor(list_particules->at(i).coorx() + list_v_inter->at(i).at(0),
+                                         list_particules->at(i).coory() + list_v_inter->at(i).at(1),
+                                         list_particules->at(i).coorz() + list_v_inter->at(i).at(2));
+        
+        // actualisation des forces liés aux nouvelles positions des particules
+        energieLJ();
+
+        // 3eme equation algo
+        list_v->at(i).at(0) = list_v_inter->at(i).at(0) - (list_forces->at(i).at(0) / 2 * M);
+        list_v->at(i).at(1) = list_v_inter->at(i).at(1) - (list_forces->at(i).at(1) / 2 * M);
+        list_v->at(i).at(2) = list_v_inter->at(i).at(2) - (list_forces->at(i).at(2) / 2 * M);
+
+        /*// nouvelle positions
         list_particules->at(i).update_coor((-1 * list_v->at(i).at(0) * list_particules_prec->at(i).coorx()) / (1 - list_v->at(i).at(0)),
                                         (-1 * list_v->at(i).at(1) * list_particules_prec->at(i).coory()) / (1 - list_v->at(i).at(1)),
                                         (-1 * list_v->at(i).at(2) * list_particules_prec->at(i).coorz()) / (1 - list_v->at(i).at(2)));
     
         // nouvelles vitesses vx = sqrt(rx^2 + r_(-1)x^2)
-        list_v->at(i).at(0) = sqrt(distX(list_particules->at(i),list_particules_prec->at(i)));
-        list_v->at(i).at(1) = sqrt(distY(list_particules->at(i),list_particules_prec->at(i)));
-        list_v->at(i).at(2) = sqrt(distZ(list_particules->at(i),list_particules_prec->at(i)));
+        list_v->at(i).at(0) = sqrt(distX(list_particules->at(i),list_particules_prec->at(i))) / 2;
+        list_v->at(i).at(1) = sqrt(distY(list_particules->at(i),list_particules_prec->at(i))) / 2;
+        list_v->at(i).at(2) = sqrt(distZ(list_particules->at(i),list_particules_prec->at(i))) / 2;*/
     }
 }
 
@@ -401,6 +415,8 @@ int Simulation::run(std::string const& filepath_xyz, std::string const& filepath
 
     std::cout << "==========Début d'execution de la Simulation==========\n\n";
 
+    /* ============== INITIALISATION ============== */
+
     // initialisation des vecteurs de translation
     trans_vect_init();
 
@@ -431,15 +447,9 @@ int Simulation::run(std::string const& filepath_xyz, std::string const& filepath
     }
 
     double vitesse = 0, temp;
-    for(int i=0; i<N_particules_total; ++i){
-        // anciennes vitesses
-        list_v_prec->at(i).at(0) = list_v->at(i).at(0);
-        list_v_prec->at(i).at(1) = list_v->at(i).at(1);
-        list_v_prec->at(i).at(2) = list_v->at(i).at(2);
-
-    }
     int j=0, fact=100;
-    for(auto v: *list_v_prec){
+
+    for(auto v: *list_v_inter){
         temp = v.at(0) + v.at(1) + v.at(2);
         vitesse += temp;
         if(std::fabs(temp) > RCUT){ // si la particule va trop vite
@@ -447,41 +457,55 @@ int Simulation::run(std::string const& filepath_xyz, std::string const& filepath
             list_v->at(j).at(0) /= fact;
             list_v->at(j).at(1) /= fact;
             list_v->at(j).at(2) /= fact;
-            //std::cout << "Particule n°" << j << " s'est pris une amende. Mtn elle ralentit\n";
+            
+            #ifndef NDEBUG // Debug line
+            std::cout << "Particule n°" << j << " s'est pris une amende. Mtn elle ralentit\n";
+            #endif
         }
         ++j;
     }
-    std::cout << "Vitesse de toutes les composantes = " << vitesse << "\n";
+    std::cout << "\nSomme de toutes les composantes de la Vitesse = " << vitesse << "\n";
+    
     // calcul de l'energie et de la temperature cinetique
     cinetic_ET();
     printInfo(); // affichage infos
 
-    std::cout << "Energie totale,Energie potentielle,Température\n\n";
+    /* ============== BOUCLE PRINCIPALE ============== */
+
+    std::cout << "\nEnergie totale,Energie potentielle,Température\n\n";
+    // Calcul initial de l'energie du système
+    energieLJ();
 
     // pour chaque pas de temps
     for(t=0; t<T; ++t){
 
         #ifndef NDEBUG // Debug line
-        //std::cout << "\n-----------------Itération n°" << t << "-----------------\n";
+        std::cout << "\n-----------------Itération n°" << t << "-----------------\n";
         #endif
 
-        // Calcul de l'energie du système
-        energieLJ();
-
-        // sauvegarde de l'itéation précdente pour chaque particule du système
+        /* ALGO VELOCITY VERLET (sans contrôle de la température) */
         for(int i=0; i<N_particules_total; ++i){
-            // position des particules
-            list_particules_prec->at(i).update_coor(list_particules->at(i).coorx(),
-                                                    list_particules->at(i).coory(),
-                                                    list_particules->at(i).coorz());
-            // anciennes vitesses
-            list_v_prec->at(i).at(0) = list_v->at(i).at(0);
-            list_v_prec->at(i).at(1) = list_v->at(i).at(1);
-            list_v_prec->at(i).at(2) = list_v->at(i).at(2);
+            // 1er equation algo
+            list_v_inter->at(i).at(0) = list_v->at(i).at(0) - (list_forces->at(i).at(0) / 2 * M);
+            list_v_inter->at(i).at(1) = list_v->at(i).at(1) - (list_forces->at(i).at(1) / 2 * M);
+            list_v_inter->at(i).at(2) = list_v->at(i).at(2) - (list_forces->at(i).at(2) / 2 * M);
+
+            // 2eme equation algo
+            list_particules->at(i).update_coor(list_particules->at(i).coorx() + list_v_inter->at(i).at(0),
+                                         list_particules->at(i).coory() + list_v_inter->at(i).at(1),
+                                         list_particules->at(i).coorz() + list_v_inter->at(i).at(2));
         }
 
-        // calcul des vitesses
-        vverlet();
+        // actualisation des forces liés aux nouvelles positions des particules
+        energieLJ();
+
+        for(int i=0; i<N_particules_total; ++i){
+            // 3eme equation algo
+            list_v->at(i).at(0) = list_v_inter->at(i).at(0) - (list_forces->at(i).at(0) / 2 * M);
+            list_v->at(i).at(1) = list_v_inter->at(i).at(1) - (list_forces->at(i).at(1) / 2 * M);
+            list_v->at(i).at(2) = list_v_inter->at(i).at(2) - (list_forces->at(i).at(2) / 2 * M);
+        }
+        /* FIN ALGO VELOCITY VERLET */
 
         // calcul du moment cinétique
         for(int i=0; i<N_particules_total; ++i){

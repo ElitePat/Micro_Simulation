@@ -29,7 +29,7 @@
 #define N 3*N_particules_total-3        // Nombre de degrées de liberté du système
 
 //
-#define T 10 // pas de temps maximal
+#define T 20 // temps maximal
 
 
 class Simulation{
@@ -50,18 +50,16 @@ private:
     // temps actuel de la simulation
     int t;
 
-    // Liste des particules dans la simulation
+    // Liste des positions des particules dans la simulation
     std::vector<Particule> *list_particules;
-    // Liste des positions précdentes des particules
-    std::vector<Particule> *list_particules_prec;
 
     // forces pour chaque particule
     std::vector<std::vector<double>> *list_forces;
 
     // vitesses de chaque particule dans les 3 axes
     std::vector<std::vector<double>> *list_v;
-    // vitesses precedentes de chaque particule
-    std::vector<std::vector<double>> *list_v_prec;
+    // vitesses de chaque particule au demi pas de temps
+    std::vector<std::vector<double>> *list_v_inter;
 
     // moment cinétique pour chaque particule
     std::vector<std::vector<double>> *list_mc;
