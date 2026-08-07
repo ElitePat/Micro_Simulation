@@ -115,8 +115,14 @@ public:
     // Affiche les information/état de la simulation au momment de l'appel
     void printInfo();
 
+    /* Pour générere les donées on utilise l'une des deux fonctions ! */
+    // génération des données avec fichier
+    int file_gen(std::string const& filepath_xyz, std::string const& filepath_mc);
+    // génération des données aléatoires
+    int alea_gen(std::string const& filepath_xyz);
+
     // Lancer la simulation
-    int run(std::string const& filepath_xyz, std::string const& filepath_mc);
+    int run();
 };
 
 

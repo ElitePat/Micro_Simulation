@@ -29,7 +29,7 @@ Simulation::~Simulation(){
     delete list_v_inter;
     delete list_mc;
     delete trans_vect;
-    #ifndef NDEBUG // Debug code"
+    #ifndef NDEBUG // Debug code
     std::cout << "Mémoire de la Simulation liberé !\n";
     #endif
 }
@@ -470,12 +470,30 @@ void Simulation::thermo(){
     }
 }
 
-// Lance la simulation
-int Simulation::run(std::string const& filepath_xyz, std::string const& filepath_mc){
+// génération des données avec fichier
+int Simulation::file_gen(std::string const& filepath_xyz, std::string const& filepath_mc){
+    
+    // initialisation des vecteurs de translation
+    trans_vect_init();
 
-    std::cout << "==========Début d'execution de la Simulation==========\n\n";
+    // Lecture des particules dans le fichier particule
+    int test = lireP(filepath_xyz);
+    if(test){
+        std::cout << "Échec de lecture du ficher !\n";
+        return 1;
+    }
+    // Lecture des moments cinétiques dans le fichier particule
+    test = lireM(filepath_mc);
+    if(test){
+        std::cout << "Échec de lecture du ficher !\n";
+        return 1;
+    }
+     
+    return 0;
+}
 
-    /* ============== INITIALISATION ============== */
+// génération des données aléatoires
+int Simulation::alea_gen(std::string const& filepath_xyz){
 
     // initialisation des vecteurs de translation
     trans_vect_init();
@@ -483,15 +501,23 @@ int Simulation::run(std::string const& filepath_xyz, std::string const& filepath
     // Lecture des particules dans le fichier particule
     int test = lireP(filepath_xyz);
     if(test){
-        std::cout << "Échec de la simulation !\n";
+        std::cout << "Échec de lecture du ficher !\n";
         return 1;
     }
-    // Lecture des moments cinétiques dans le fichier particule
-    test = lireM(filepath_mc);
-    if(test){
-        std::cout << "Échec de la simulation !\n";
-        return 1;
-    }
+
+    // génération aléatoire des moments cinétiques
+    alea_gen_mc();
+
+    return 0;
+}
+
+
+// Lance la simulation
+int Simulation::run(){
+
+    std::cout << "==========Execution de la Simulation==========\n\n";
+
+    /* ============== INITIALISATION ============== */
 
     // Conversion des moments cinétiques en vitesse (pour chaque particule)
     for(int i=0; i<N_particules_total; ++i){
@@ -500,7 +526,7 @@ int Simulation::run(std::string const& filepath_xyz, std::string const& filepath
         list_v->at(i).at(2) = list_mc->at(i).at(2) / (M * CONVERSION_FORCE);
     }
 
-    /* ==========================================================================
+    /* ========================================================================== */
 
     // calcul du nombre moyen de particules situées à une distance inférieure à Rc
     std::cout << "\nRayon de cupure -> Nombre moyen de voisins\n";
