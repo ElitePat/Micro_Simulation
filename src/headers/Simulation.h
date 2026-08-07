@@ -9,6 +9,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <cmath>
+#include <random>
 
 #include "Particule.h"
 
@@ -27,8 +28,9 @@
 #define M 18                            // masse d'une particule
 #define CONSTANTE_R 8.31e-7
 #define N 3*N_particules_total-3        // Nombre de degrées de liberté du système
+#define TEMP 300                        // Température (initiale) du système
 
-//
+
 #define T 20 // temps maximal
 
 
@@ -97,6 +99,12 @@ private:
 
     // nombre moyen de particules situées à une distance inférieure à Rc
     double pproches(int const& rcut);
+
+    // génération d'un premier jeux de moments cinétiques aléatoires
+    void alea_gen_mc();
+
+    // focntion du thermostat de Berendsen
+    void thermo();
 
 public:
     // Constructeur

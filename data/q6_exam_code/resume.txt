@@ -1,0 +1,5 @@
+Nombre d'itérations Temps d'execution
+20                  15.313s
+20                  15.237s
+20                  15.887s
+200                 2m25.483s

@@ -9,6 +9,9 @@ const std::string file_mc = "../data/examen_270226_mci";
 
 int main(int argc, char** argv){
 
+    // affectation de la graine au générateur aléatoire (une seule fois pour tout le code)
+    std::random_device rand;
+
     std::cout << "Projet de Simulation Microscopique\n";
 
     // Création de la simulation

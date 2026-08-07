@@ -408,7 +408,67 @@ double Simulation::pproches(int const& rcut){
     return somme_moy / N_sym;
 }
 
+// génération d'un premier jeux de moments cinétiques aléatoires
+void Simulation::alea_gen_mc(){
+    /*Les boucle ici sont totalement parallélisables !*/
+    
+    // on utilise le générateur Mersenne Twister (recomandé sur Internet ¯\_(ツ)_/¯ )
+    std::mt19937 gen(rand());
+    std::uniform_real_distribution<> dis(0.0, 1.0);
 
+    // génération aléatoire des moments cinétiques
+    for(std::vector<double> p : *list_mc){
+        p.at(0) = std::copysign(1.0,0.5-dis(gen)) * dis(gen);
+        p.at(1) = std::copysign(1.0,0.5-dis(gen)) * dis(gen);
+        p.at(2) = std::copysign(1.0,0.5-dis(gen)) * dis(gen);
+    }
+
+    // calcul énergie cinétique
+    cinetic_ET();
+
+    // recalibrage pour correspondre à la température choisie T0 = 300 K
+    double rapport = N*CONSTANTE_R*TEMP / ec;
+    for(std::vector<double> p : *list_mc){
+        p.at(0) *= rapport;
+        p.at(1) *= rapport;
+        p.at(2) *= rapport;
+    }
+
+    // calcul du moment cinétique du centre masse
+    double px=0, py=0, pz=0;
+    for(std::vector<double> p : *list_mc){
+        px += p.at(0);
+        py += p.at(1);
+        pz += p.at(2);
+    }
+    // correction des moments cinétiques des particules
+    for(std::vector<double> p : *list_mc){
+        p.at(0) -= px/N_particules_total;
+        p.at(1) -= py/N_particules_total;
+        p.at(2) -= pz/N_particules_total;
+    }
+
+    // calcul énergie cinétique
+    cinetic_ET();
+
+    // recalibrage pour correspondre à la température choisie T0 = 300 K
+    rapport = N*CONSTANTE_R*TEMP / ec;
+    for(std::vector<double> p : *list_mc){
+        p.at(0) *= rapport;
+        p.at(1) *= rapport;
+        p.at(2) *= rapport;
+    }
+}
+
+// focntion du thermostat de Berendsen
+void Simulation::thermo(){
+    double var = 0.01 * (TEMP/tc - 1);
+    for(std::vector<double> p : *list_mc){
+        p.at(0) += var * p.at(0);
+        p.at(1) += var * p.at(1);
+        p.at(2) += var * p.at(2);
+    }
+}
 
 // Lance la simulation
 int Simulation::run(std::string const& filepath_xyz, std::string const& filepath_mc){
@@ -439,6 +499,8 @@ int Simulation::run(std::string const& filepath_xyz, std::string const& filepath
         list_v->at(i).at(1) = list_mc->at(i).at(1) / (M * CONVERSION_FORCE);
         list_v->at(i).at(2) = list_mc->at(i).at(2) / (M * CONVERSION_FORCE);
     }
+
+    /* ==========================================================================
 
     // calcul du nombre moyen de particules situées à une distance inférieure à Rc
     std::cout << "\nRayon de cupure -> Nombre moyen de voisins\n";
