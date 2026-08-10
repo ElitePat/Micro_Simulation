@@ -1,6 +1,6 @@
-# CODE DE SIMULATION MICROSCOPIQUE
+# CODE DE SIMULATION D'UN SYSTEME MICROSCOPIQUE
 
-Projet académique de simulation d'un système microscopique en C++ du cours Introduction à la Simulation Microscopique du M2 CHPS de l'UVSQ (Paris-Saclay).
+Projet académique de simulation d'un système de particules microscopiques en C++ du cours Introduction à la Simulation Microscopique du M2 CHPS de l'UVSQ (Paris-Saclay).
 
 ## Objectif
 

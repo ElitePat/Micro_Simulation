@@ -13,11 +13,11 @@ project(MICRO_SIMULATION CXX) # Indique que c'est un projet C++
 # --- Définition des répertoires sources et headers ---
 
 # Répertoire contenant les fichiers .cpp
-# Basé sur la structure : HP_Mandelbrot/src/code/
+# Basé sur la structure : Micro_Simulation/src/code/
 set(CODE_DIR ${CMAKE_SOURCE_DIR}/src/code)
 
 # Répertoire contenant les fichiers .h
-# Basé sur la structure : HP_Mandelbrot/src/headers/
+# Basé sur la structure : Micro_Simulation/src/headers/
 set(HEADERS_DIR ${CMAKE_SOURCE_DIR}/src/headers)
 
 

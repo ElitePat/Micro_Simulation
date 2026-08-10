@@ -1,0 +1,6 @@
+# Suivi des performances au fur et a mésure des optimisations
+# Nb = Nombre de pas de temps dans la simulation
+# Le temps est donné en secondes
+
+Version     Nb      Temps (moyen)
+1           10      11.6356
