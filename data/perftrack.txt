@@ -1,6 +1,9 @@
 # Suivi des performances au fur et a mésure des optimisations
 # Nb = Nombre de pas de temps dans la simulation
-# Le temps est donné en secondes
+# Le temps moyen d'une simulation compléte
 
-Version     Nb      Temps (moyen)
-1           10      11.6356
+Version     Nb      Temps(s)    Temps moyen d'une itération(s)
+1           10      11.6356     1.16356
+2           10      3.0681      0.30681
+2.1         20      5.1004      0.25502
+2.2         20      5.1576      0.25788

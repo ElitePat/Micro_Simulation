@@ -130,7 +130,7 @@ int Simulation::lireP(const std::string filepath){
 
     // varaibles temporaires
     std::string ligne, cell;
-    double tmpx, tmpy, tmpz;
+    double tmpx=0, tmpy=0, tmpz=0;
     int i=0,p=0;
 
     // Pour ignorer la première ligne
@@ -188,7 +188,7 @@ int Simulation::lireM(const std::string filepath){
 
     // varaibles temporaires
     std::string ligne, cell;
-    double tmpx, tmpy, tmpz;
+    double tmpx=0, tmpy=0, tmpz=0;
     int i=0,p=0;
 
     // Pour ignorer la première ligne
@@ -515,7 +515,7 @@ int Simulation::alea_gen(std::string const& filepath_xyz){
 // Lance la simulation
 int Simulation::run(){
 
-    std::cout << "==========Execution de la Simulation==========\n\n";
+    std::cout << "==========Execution de la Simulation==========\n";
 
     /* ============== INITIALISATION ============== */
 
