@@ -543,6 +543,7 @@ int Simulation::run(){
     cinetic_ET();
     printInfo(); // affichage infos
 
+
     /* ============== BOUCLE PRINCIPALE ============== */
 
     std::cout << "\nEnergie totale,Energie potentielle,Température\n\n";
@@ -551,6 +552,12 @@ int Simulation::run(){
 
     // pour chaque pas de temps
     for(t=0; t<T; ++t){
+
+        // Introduction du thermostat de Berendsen pour chaque 4 itérations
+        if(t%4 == 0){
+            thermo();
+            std::cout << "Application du thermostat de Berendsen ... => ";
+        }
 
         #ifndef NDEBUG // Debug line
         std::cout << "\n-----------------Itération n°" << t << "-----------------\n";
