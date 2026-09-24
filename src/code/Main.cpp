@@ -4,8 +4,8 @@
 #include "../headers/Simulation.h"
 
 
-const std::string file_xyz = "../data/examen_270226_xyz";
-const std::string file_mc = "../data/examen_270226_mci";
+const std::string file_xyz = "../data/examen_270226_xyz"; // positions
+const std::string file_mc = "../data/examen_270226_mci"; // moments cinétiques
 
 int main(int argc, char** argv){
 
@@ -18,8 +18,8 @@ int main(int argc, char** argv){
     Simulation* simu = new Simulation{};
 
     // Génération des données
-    int res = simu->alea_gen(file_xyz);
-    //int res = simu->file_gen(file_xyz,file_mc);
+    /* En entrée soit le fichier des positions soit les deux fichiers ! */
+    int res = simu->data_gen(file_xyz);
 
     if(!res){ // Si la génération s'est bien faite
 

@@ -462,7 +462,7 @@ void Simulation::thermo(){
 }
 
 // génération des données avec fichier
-int Simulation::file_gen(std::string const& filepath_xyz, std::string const& filepath_mc){
+int Simulation::data_gen(std::string const& filepath_xyz, std::string const& filepath_mc){
     
     // initialisation des vecteurs de translation
     trans_vect_init();
@@ -484,7 +484,7 @@ int Simulation::file_gen(std::string const& filepath_xyz, std::string const& fil
 }
 
 // génération des données aléatoires
-int Simulation::alea_gen(std::string const& filepath_xyz){
+int Simulation::data_gen(std::string const& filepath_xyz){
 
     // initialisation des vecteurs de translation
     trans_vect_init();

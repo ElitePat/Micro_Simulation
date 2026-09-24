@@ -116,10 +116,10 @@ public:
     void printInfo();
 
     /* Pour générere les donées on utilise l'une des deux fonctions ! */
-    // génération des données avec fichier
-    int file_gen(std::string const& filepath_xyz, std::string const& filepath_mc);
-    // génération des données aléatoires
-    int alea_gen(std::string const& filepath_xyz);
+    // génération des positions et des moments cinétiques avec fichier
+    int data_gen(std::string const& filepath_xyz, std::string const& filepath_mc);
+    // génération des postions avec fichier et moments cinétiques aléatoires
+    int data_gen(std::string const& filepath_xyz);
 
     // Lancer la simulation
     int run();
