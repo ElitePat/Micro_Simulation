@@ -1,8 +1,10 @@
 # Suivi des performances au fur et a mésure des optimisations
-# Nb = Nombre de pas de temps dans la simulation
-# Le temps moyen d'une simulation compléte
 
-Version     Nb      Temps(s)    Temps moyen d'une itération(s)
+# Nb = Nombre de pas de temps dans la simulation
+# Temps(s) = temps moyen d'une simulation compléte
+# Itération(s) = temps moyen pour l'execution d'un seul pas de temps dans la simulation, soit Temps/Nb
+
+Version     Nb      Temps(s)    Itération(s)
 1           10      11.6356     1.16356
 2           10      3.0681      0.30681
 2.1         20      5.1004      0.25502

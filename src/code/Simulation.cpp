@@ -349,24 +349,15 @@ void Simulation::vverlet(){
         list_particules->at(i).update_coor(list_particules->at(i).coorx() + list_v_inter->at(i).at(0),
                                          list_particules->at(i).coory() + list_v_inter->at(i).at(1),
                                          list_particules->at(i).coorz() + list_v_inter->at(i).at(2));
-        
-        // actualisation des forces liés aux nouvelles positions des particules
-        energieLJ();
+    }
 
-        // 3eme equation algo
+    // actualisation des forces liés aux nouvelles positions des particules
+    energieLJ();
+
+    for(int i=0; i<N_particules_total; ++i){        // 3eme equation algo
         list_v->at(i).at(0) = list_v_inter->at(i).at(0) - (list_forces->at(i).at(0) / 2 * M);
         list_v->at(i).at(1) = list_v_inter->at(i).at(1) - (list_forces->at(i).at(1) / 2 * M);
         list_v->at(i).at(2) = list_v_inter->at(i).at(2) - (list_forces->at(i).at(2) / 2 * M);
-
-        /*// nouvelle positions
-        list_particules->at(i).update_coor((-1 * list_v->at(i).at(0) * list_particules_prec->at(i).coorx()) / (1 - list_v->at(i).at(0)),
-                                        (-1 * list_v->at(i).at(1) * list_particules_prec->at(i).coory()) / (1 - list_v->at(i).at(1)),
-                                        (-1 * list_v->at(i).at(2) * list_particules_prec->at(i).coorz()) / (1 - list_v->at(i).at(2)));
-    
-        // nouvelles vitesses vx = sqrt(rx^2 + r_(-1)x^2)
-        list_v->at(i).at(0) = sqrt(distX(list_particules->at(i),list_particules_prec->at(i))) / 2;
-        list_v->at(i).at(1) = sqrt(distY(list_particules->at(i),list_particules_prec->at(i))) / 2;
-        list_v->at(i).at(2) = sqrt(distZ(list_particules->at(i),list_particules_prec->at(i))) / 2;*/
     }
 }
 
@@ -571,29 +562,8 @@ int Simulation::run(){
         std::cout << "\n-----------------Itération n°" << t << "-----------------\n";
         #endif
 
-        /* ALGO VELOCITY VERLET (sans contrôle de la température) */
-        for(int i=0; i<N_particules_total; ++i){
-            // 1er equation algo
-            list_v_inter->at(i).at(0) = list_v->at(i).at(0) - (list_forces->at(i).at(0) / 2 * M);
-            list_v_inter->at(i).at(1) = list_v->at(i).at(1) - (list_forces->at(i).at(1) / 2 * M);
-            list_v_inter->at(i).at(2) = list_v->at(i).at(2) - (list_forces->at(i).at(2) / 2 * M);
-
-            // 2eme equation algo
-            list_particules->at(i).update_coor(list_particules->at(i).coorx() + list_v_inter->at(i).at(0),
-                                         list_particules->at(i).coory() + list_v_inter->at(i).at(1),
-                                         list_particules->at(i).coorz() + list_v_inter->at(i).at(2));
-        }
-
-        // actualisation des forces liés aux nouvelles positions des particules
-        energieLJ();
-
-        for(int i=0; i<N_particules_total; ++i){
-            // 3eme equation algo
-            list_v->at(i).at(0) = list_v_inter->at(i).at(0) - (list_forces->at(i).at(0) / 2 * M);
-            list_v->at(i).at(1) = list_v_inter->at(i).at(1) - (list_forces->at(i).at(1) / 2 * M);
-            list_v->at(i).at(2) = list_v_inter->at(i).at(2) - (list_forces->at(i).at(2) / 2 * M);
-        }
-        /* FIN ALGO VELOCITY VERLET */
+        // algorithme de velocity verlet sans controle de la temperature
+        vverlet();
 
         // calcul du moment cinétique
         for(int i=0; i<N_particules_total; ++i){

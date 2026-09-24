@@ -31,7 +31,7 @@
 #define TEMP 300                        // Température (initiale) du système
 
 
-#define T 20 // temps maximal
+#define T 20 // nombre de pas de temps (maximal)
 
 
 class Simulation{
