@@ -255,12 +255,6 @@ void Simulation::energieLJ(){
     int i=0, j;
     //int n = 0; // debug line
 
-    // Calcul de r^6 et de r^12
-    double r2 = R*R;        // r^2
-    double r6 = r2*r2;      // r^4
-    r6 *= r2;               // r^6
-    double r12 = r6*r6;     // r^12
-
     // Remise a zéro de forces sur chaque particule
     for(int i=0;i<N_particules_total;++i){
         list_forces->at(i).at(0) = 0;

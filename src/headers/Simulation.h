@@ -52,6 +52,11 @@ private:
     // temps actuel de la simulation
     int t;
 
+    // Calcul de r^6 et de r^12 utile pour le terme de LJ
+    const double r2 = R*R;        // r^2
+    const double r6 = r2*r2*r2;   // r^6
+    const double r12 = r6*r6;     // r^12
+
     // Liste des positions des particules dans la simulation
     std::vector<Particule> *list_particules;
 
